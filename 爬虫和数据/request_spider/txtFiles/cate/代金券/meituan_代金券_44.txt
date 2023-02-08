@@ -1,0 +1,1 @@
+{"status":0,"data":{"totalCounts":646,"poiInfos":[{"poiId":6523307,"frontImg":"http://p0.meituan.net/600.600/merchant/60ed32d194210a9c21db84369676f4ad348658.jpg","title":"昶丰臭桂鱼（高新店）","avgScore":4.5,"allCommentNum":900,"address":"唐延路沿线","avgPrice":90,"dealList":[{"title":"100元代金券1张，可叠加3张","price":89,"soldCounts":0}],"hasAds":false,"adsClickUrl":"","adsShowUrl":""}]}}
