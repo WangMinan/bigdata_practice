@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.meituan.mapper.FoodMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.meituan.domain.Food">
+            <id property="poiId" column="poiId" jdbcType="VARCHAR"/>
+            <result property="frontImg" column="frontImg" jdbcType="VARCHAR"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="category" column="category" jdbcType="VARCHAR"/>
+            <result property="district" column="district" jdbcType="VARCHAR"/>
+            <result property="businessDistrict" column="businessDistrict" jdbcType="VARCHAR"/>
+            <result property="avgScore" column="avgScore" jdbcType="INTEGER"/>
+            <result property="allCommentNum" column="allCommentNum" jdbcType="INTEGER"/>
+            <result property="avgPrice" column="avgPrice" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        poiId,frontImg,title,
+        category,district,businessDistrict,
+        avgScore,allCommentNum,avgPrice
+    </sql>
+</mapper>
