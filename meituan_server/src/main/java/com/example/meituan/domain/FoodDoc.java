@@ -50,7 +50,7 @@ public class FoodDoc {
     /**
      * 平均评分
      */
-    private Integer avgScore;
+    private Long avgScore;
 
     /**
      * 总评论数

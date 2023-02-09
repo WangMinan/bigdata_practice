@@ -56,7 +56,7 @@ public class Food implements Serializable {
      * 平均评分
      */
     @TableField("avgScore")
-    private Integer avgScore;
+    private long avgScore;
 
     /**
      * 总评论数
