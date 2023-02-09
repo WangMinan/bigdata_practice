@@ -8,7 +8,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * 
+ *
  * @TableName business_position
  */
 @TableName(value ="business_position")
@@ -21,12 +21,12 @@ public class BusinessPosition implements Serializable {
     private String address;
 
     /**
-     * 地址经度
+     * 地址纬度
      */
     private Double latitude;
 
     /**
-     * 地址纬度
+     * 地址经度
      */
     private Double longitude;
 

@@ -1,9 +1,13 @@
 package com.example.meituan;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.meituan.domain.BusinessPosition;
 import com.example.meituan.domain.Food;
 import com.example.meituan.domain.FoodDoc;
+import com.example.meituan.service.BusinessPositionService;
 import com.example.meituan.service.FoodService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -17,9 +21,9 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,12 +31,16 @@ import java.util.List;
  * 文档操作测试
  */
 @SpringBootTest
+@Slf4j
 class FoodDocumentTest {
 
     private RestHighLevelClient client;
 
-    @Autowired
+    @Resource
     private FoodService foodService;
+
+    @Resource
+    private BusinessPositionService businessPositionService;
 
     @BeforeEach
     void setUp() {
@@ -49,7 +57,7 @@ class FoodDocumentTest {
     @Test
     void testAddDocument() throws IOException {
         // 1.查询数据库hotel数据
-        Food food = foodService.getById(1000386622);
+        Food food = foodService.getById("1000386622");
         // 2.转换为HotelDoc
         FoodDoc foodDoc = new FoodDoc(food);
         // 3.转JSON
@@ -66,7 +74,7 @@ class FoodDocumentTest {
     @Test
     void testGetDocumentById() throws IOException {
         // 1.准备Request      // GET /hotel/_doc/{id}
-        GetRequest request = new GetRequest("meituan", "1002273569");
+        GetRequest request = new GetRequest("meituan", "95437482");
         // 2.发送请求
         GetResponse response = client.get(request, RequestOptions.DEFAULT);
         // 3.解析响应结果
@@ -105,7 +113,7 @@ class FoodDocumentTest {
         BulkRequest request = new BulkRequest();
         // 2.准备参数
         for (Food food : list) {
-            // 2.1.转为HotelDoc
+            // 2.1.转为FoodDoc
             FoodDoc foodDoc = new FoodDoc(food);
             // 2.2.转json
             String json = JSON.toJSONString(foodDoc);

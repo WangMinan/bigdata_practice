@@ -8,3 +8,7 @@ spring:
     url: jdbc:mysql://8.218.84.229:3306/xian_meituan?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: wangminan
     password: HaoHao20021118
+
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

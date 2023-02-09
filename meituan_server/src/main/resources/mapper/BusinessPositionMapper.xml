@@ -6,8 +6,8 @@
 
     <resultMap id="BaseResultMap" type="com.example.meituan.domain.BusinessPosition">
             <id property="address" column="address" jdbcType="VARCHAR"/>
-            <result property="latitude" column="latitude" jdbcType="DOUBLE"/>
-            <result property="longitude" column="longitude" jdbcType="DOUBLE"/>
+            <result property="latitude" column="longitude" jdbcType="DOUBLE"/>
+            <result property="longitude" column="latitude" jdbcType="DOUBLE"/>
     </resultMap>
 
     <sql id="Base_Column_List">

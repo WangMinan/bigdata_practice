@@ -70,6 +70,10 @@ public class Food implements Serializable {
     @TableField("avgPrice")
     private Integer avgPrice;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

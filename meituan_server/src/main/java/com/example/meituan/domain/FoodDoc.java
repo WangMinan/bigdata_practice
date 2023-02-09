@@ -67,6 +67,11 @@ public class FoodDoc {
      */
     private List<String> suggestion;
 
+    private String location;
+
+    // 距离字段 用于页面显示
+    private Object distance;
+
     private static final long serialVersionUID = 1L;
 
     public FoodDoc(Food food){
@@ -95,6 +100,7 @@ public class FoodDoc {
         this.avgScore = food.getAvgScore();
         this.allCommentNum = food.getAllCommentNum();
         this.avgPrice = food.getAvgPrice();
+        this.location = food.getLatitude() + "," + food.getLongitude();
         this.suggestion = new ArrayList<>();
 
         if(!Objects.equals(this.getCategory(), "")) {
