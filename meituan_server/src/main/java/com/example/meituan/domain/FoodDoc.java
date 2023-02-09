@@ -112,8 +112,8 @@ public class FoodDoc {
         }
 
         if(!Objects.equals(this.getBusinessDistrict(), "")) {
-            if(this.getBusinessDistrict().contains("_")){
-                this.suggestion.addAll(Arrays.asList(food.getBusinessDistrict().split("_")));
+            if(this.getBusinessDistrict().contains("/")){
+                this.suggestion.addAll(Arrays.asList(food.getBusinessDistrict().split("/")));
             } else {
                 this.suggestion.add(food.getBusinessDistrict());
             }

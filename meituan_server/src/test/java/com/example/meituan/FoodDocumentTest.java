@@ -1,16 +1,12 @@
 package com.example.meituan;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.example.meituan.domain.BusinessPosition;
 import com.example.meituan.domain.Food;
 import com.example.meituan.domain.FoodDoc;
-import com.example.meituan.service.BusinessPositionService;
 import com.example.meituan.service.FoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -38,9 +34,6 @@ class FoodDocumentTest {
 
     @Resource
     private FoodService foodService;
-
-    @Resource
-    private BusinessPositionService businessPositionService;
 
     @BeforeEach
     void setUp() {
