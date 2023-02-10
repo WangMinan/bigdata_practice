@@ -11,7 +11,7 @@
             <result property="category" column="category" jdbcType="VARCHAR"/>
             <result property="district" column="district" jdbcType="VARCHAR"/>
             <result property="businessDistrict" column="businessDistrict" jdbcType="VARCHAR"/>
-            <result property="avgScore" column="avgScore" jdbcType="DOUBLE"/>
+            <result property="avgScore" column="avgScore" jdbcType="FLOAT"/>
             <result property="allCommentNum" column="allCommentNum" jdbcType="INTEGER"/>
             <result property="avgPrice" column="avgPrice" jdbcType="INTEGER"/>
             <result property="latitude" column="longitude" jdbcType="DOUBLE"/>

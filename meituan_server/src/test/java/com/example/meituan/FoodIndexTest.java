@@ -56,6 +56,7 @@ class FoodIndexTest {
 
         System.out.println(isExists ? "存在" : "不存在");
     }
+
     @Test
     void testDeleteIndex() throws IOException {
         // 1.准备Request

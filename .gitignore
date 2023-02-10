@@ -22,7 +22,6 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-rating_system_client/dist/**
 /nbdist/
 /.nb-gradle/
 build/

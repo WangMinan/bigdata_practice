@@ -85,18 +85,8 @@ public class FoodDoc {
             this.category = food.getCategory();
         }
 
-        if(food.getDistrict() == null){
-            this.district = "";
-        } else {
-            this.district = food.getDistrict();
-        }
-
-        if(food.getBusinessDistrict() == null){
-            this.businessDistrict = "";
-        } else {
-            this.businessDistrict = food.getBusinessDistrict();
-        }
-
+        this.district = food.getDistrict();
+        this.businessDistrict = food.getBusinessDistrict();
         this.avgScore = food.getAvgScore();
         this.allCommentNum = food.getAllCommentNum();
         this.avgPrice = food.getAvgPrice();
