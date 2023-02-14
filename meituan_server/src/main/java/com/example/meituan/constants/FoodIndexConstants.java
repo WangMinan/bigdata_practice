@@ -10,6 +10,8 @@ public class FoodIndexConstants {
         throw new IllegalStateException("Utility class");
     }
 
+    public static final String MEITUAN_INDEX_NAME = "meituan";
+
     public static final String MAPPING_TEMPLATE = """
             {
                       "settings": {

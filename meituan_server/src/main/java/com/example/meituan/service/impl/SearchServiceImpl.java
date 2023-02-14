@@ -8,6 +8,7 @@ import com.example.meituan.dto.PageResult;
 import com.example.meituan.dto.QueryDto;
 import com.example.meituan.dto.SmartSuggestionDto;
 import com.example.meituan.dto.SuggestionDto;
+import com.example.meituan.exception.SearchException;
 import com.example.meituan.pojo.R;
 import com.example.meituan.service.SearchService;
 import org.elasticsearch.action.search.SearchRequest;
@@ -38,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.meituan.constants.FoodIndexConstants.MEITUAN_INDEX_NAME;
+
 /**
  * @author : [wangminan]
  * @description : [搜索服务实现类]
@@ -48,10 +51,14 @@ public class SearchServiceImpl implements SearchService {
     @Resource
     private RestHighLevelClient restHighLevelClient;
 
+    private static final String RESULT = "result";
+    private static final String AVERAGE_SCORE_FIELD_NAME = "avgScore";
+    private static final String ALL_COMMENT_NUM_FIELD_NAME = "allCommentNum";
+
     @Override
     public R getSuggestion(SuggestionDto suggestionDto) {
         String key = suggestionDto.getKeyword();
-        SearchRequest request = new SearchRequest("meituan");
+        SearchRequest request = new SearchRequest(MEITUAN_INDEX_NAME);
         request.source()
                 .suggest(new SuggestBuilder().addSuggestion(
                                 // suggestName
@@ -77,10 +84,10 @@ public class SearchServiceImpl implements SearchService {
                 result.add(text);
             }
             Map<String, Object> resultMap = new HashMap<>();
-            resultMap.put("result", result);
+            resultMap.put(RESULT, result);
             return R.ok(resultMap);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new SearchException("获取建议失败");
         }
     }
 
@@ -88,7 +95,7 @@ public class SearchServiceImpl implements SearchService {
     public R query(QueryDto queryDto) {
         try {
             // 1.准备Request
-            SearchRequest request = new SearchRequest("meituan");
+            SearchRequest request = new SearchRequest(MEITUAN_INDEX_NAME);
             // 2.准备请求参数
             // 2.1.query
             buildBasicQuery(queryDto, request);
@@ -101,17 +108,17 @@ public class SearchServiceImpl implements SearchService {
             // 4.解析响应
             PageResult pageResult = handlePageResponse(response);
             Map<String,Object> result = new HashMap<>();
-            result.put("result", pageResult);
+            result.put(RESULT, pageResult);
             return R.ok(result);
         } catch (IOException e) {
-            throw new RuntimeException("搜索数据失败", e);
+            throw new SearchException("搜索失败");
         }
     }
 
     @Override
     public R getSmartSuggestion(SmartSuggestionDto smartSuggestionDto) {
         try{
-            SearchRequest request = new SearchRequest("meituan");
+            SearchRequest request = new SearchRequest(MEITUAN_INDEX_NAME);
             BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
             // 1.关键字
             String keyword = smartSuggestionDto.getKeyword();
@@ -130,19 +137,19 @@ public class SearchServiceImpl implements SearchService {
                 new FunctionScoreQueryBuilder.FilterFunctionBuilder[]{
                     // 根据avgScore和allCommentNum进行加权
                     new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("avgScore").gte(4),
+                        QueryBuilders.rangeQuery(AVERAGE_SCORE_FIELD_NAME).gte(4),
                         ScoreFunctionBuilders.weightFactorFunction(scoreAdd4)
                     ),
                     new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("avgScore").gte(3),
+                        QueryBuilders.rangeQuery(AVERAGE_SCORE_FIELD_NAME).gte(3),
                         ScoreFunctionBuilders.weightFactorFunction(scoreAdd3)
                     ),
                     new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("allCommentNum").gte(100),
+                        QueryBuilders.rangeQuery(ALL_COMMENT_NUM_FIELD_NAME).gte(100),
                         ScoreFunctionBuilders.weightFactorFunction(commentAdd1000)
                     ),
                     new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("allCommentNum").gte(100),
+                        QueryBuilders.rangeQuery(ALL_COMMENT_NUM_FIELD_NAME).gte(100),
                         ScoreFunctionBuilders.weightFactorFunction(commentAdd100)
                     )
                 }
@@ -168,10 +175,10 @@ public class SearchServiceImpl implements SearchService {
                 foodDocs = foodDocs.subList(0, 15);
             }
             Map<String,Object> result = new HashMap<>();
-            result.put("result", foodDocs);
+            result.put(RESULT, foodDocs);
             return R.ok(result);
         } catch (IOException e) {
-            throw new RuntimeException("搜索数据失败", e);
+            throw new SearchException("获取智能建议失败");
         }
     }
 
@@ -210,24 +217,23 @@ public class SearchServiceImpl implements SearchService {
             new FunctionScoreQueryBuilder.FilterFunctionBuilder[]{ // function数组
                 // 根据avgScore和allCommentNum进行加权
                 new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("avgScore").gte(4),
+                        QueryBuilders.rangeQuery(AVERAGE_SCORE_FIELD_NAME).gte(4),
                         ScoreFunctionBuilders.weightFactorFunction(10)
                 ),
                 new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("avgScore").gte(3),
+                        QueryBuilders.rangeQuery(AVERAGE_SCORE_FIELD_NAME).gte(3),
                         ScoreFunctionBuilders.weightFactorFunction(5)
                 ),
                 new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("allCommentNum").gte(100),
+                        QueryBuilders.rangeQuery(ALL_COMMENT_NUM_FIELD_NAME).gte(100),
                         ScoreFunctionBuilders.weightFactorFunction(20)
                 ),
                 new FunctionScoreQueryBuilder.FilterFunctionBuilder(
-                        QueryBuilders.rangeQuery("allCommentNum").gte(100),
+                        QueryBuilders.rangeQuery(ALL_COMMENT_NUM_FIELD_NAME).gte(100),
                         ScoreFunctionBuilders.weightFactorFunction(5)
                 )
             }
         );
-
         request.source().query(functionScoreQuery);
     }
 
@@ -257,12 +263,6 @@ public class SearchServiceImpl implements SearchService {
                     foodDoc.setTitle(hName);
                 }
             }
-/*            // 4.8.排序信息
-            Object[] sortValues = hit.getSortValues();
-            if (sortValues.length > 0) {
-                FoodDoc.setDistance(sortValues[0]);
-            }*/
-
             // 4.9.放入集合
             merchants.add(foodDoc);
         }

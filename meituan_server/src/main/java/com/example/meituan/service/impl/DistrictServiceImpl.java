@@ -1,6 +1,5 @@
 package com.example.meituan.service.impl;
 
-import com.example.meituan.dto.DistrictDto;
 import com.example.meituan.pojo.R;
 import com.example.meituan.service.DistrictService;
 import org.elasticsearch.action.search.SearchRequest;
@@ -25,10 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.example.meituan.constants.CategoryConstants.initCategoryMap;
+import static com.example.meituan.constants.FoodIndexConstants.MEITUAN_INDEX_NAME;
 
 /**
  * @author : [wangminan]
- * @description : [一句话描述该类的功能]
+ * @description : [区划角度的service]
  */
 @Service
 public class DistrictServiceImpl implements DistrictService {
@@ -36,15 +36,19 @@ public class DistrictServiceImpl implements DistrictService {
     @Resource
     private RestHighLevelClient restHighLevelClient;
 
+    private static final String DISTRICT_AGGREGATION_NAME = "DistrictAggression";
+    private static final String DISTRICT_FIELD_NAME = "district";
+    private static final String RESULT = "result";
+
     @Override
     public R getMerchantNumberByDistrict(){
         SearchResponse response =
                 getSearchResponse(QueryBuilders.matchAllQuery(),
-                        "DistrictAggression", "district");
+                        DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        List<DistrictDto> aggByDistrict = getDistrictDtoCount(aggregations, "DistrictAggression");
-        return R.ok().put("result",aggByDistrict);
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
+        return R.ok().put(RESULT,aggByDistrict);
     }
 
     /**
@@ -55,17 +59,17 @@ public class DistrictServiceImpl implements DistrictService {
     public R getFlowByDistrict(){
         SearchResponse response =
                 getSearchResponse(QueryBuilders.matchAllQuery(),
-                        "DistrictAggression", "district");
+                        DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        List<DistrictDto> aggByDistrict = getDistrictDtoCount(aggregations, "DistrictAggression");
-        List<DistrictDto> result = new ArrayList<>();
-        for (DistrictDto districtDto : aggByDistrict) {
-            String district = districtDto.getDistrict();
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
+        Map<String, Integer> result = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : aggByDistrict.entrySet()) {
+            String district = entry.getKey();
             BoolQueryBuilder queryBuilder =
                     QueryBuilders.boolQuery()
-                    .must(QueryBuilders.termQuery("district", district));
-            SearchRequest searchRequest = new SearchRequest("meituan");
+                    .must(QueryBuilders.termQuery(DISTRICT_FIELD_NAME, district));
+            SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
             searchRequest.source()
                     .query(queryBuilder)
                     .aggregation(
@@ -82,32 +86,34 @@ public class DistrictServiceImpl implements DistrictService {
             Aggregations aggregations1 = searchResponse.getAggregations();
             Sum flow = aggregations1.get("flow");
             // 转换 double转int
-            result.add(new DistrictDto(district, (int)flow.getValue()));
+            result.put(district, (int) flow.getValue());
         }
-        return R.ok().put("result",result);
+        return R.ok().put(RESULT,result);
     }
 
     @Override
     public R getMerchantTypeByDistrict() {
         SearchResponse response =
                 getSearchResponse(QueryBuilders.matchAllQuery(),
-                        "DistrictAggression", "district");
+                        DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        List<DistrictDto> aggByDistrict = getDistrictDtoCount(aggregations, "DistrictAggression");
-        Map<String, Object> result = new HashMap<>();
-        for (DistrictDto districtDto : aggByDistrict) {
-            String district = districtDto.getDistrict();
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : aggByDistrict.entrySet()) {
+            String district = entry.getKey();
             BoolQueryBuilder queryBuilder =
                     QueryBuilders.boolQuery()
-                            .must(QueryBuilders.termQuery("district", district));
+                            .must(QueryBuilders.termQuery(DISTRICT_FIELD_NAME, district));
             SearchResponse searchResponse =
                     getSearchResponse(queryBuilder,
                             "MerchantTypeAggression", "category");
-            result.put(district,
+            Map<String, Object> map = new HashMap<>();
+            map.put(district,
                     getCategoryCount(searchResponse.getAggregations(), "MerchantTypeAggression"));
+            result.add(map);
         }
-        return R.ok().put("result",result);
+        return R.ok().put(RESULT,result);
     }
 
     /**
@@ -121,17 +127,17 @@ public class DistrictServiceImpl implements DistrictService {
                         .rangeQuery("avgPrice")
                         .gt(0);
         SearchResponse response =
-                getSearchResponse(queryBuilder,"DistrictAggression", "district");
+                getSearchResponse(queryBuilder, DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        List<DistrictDto> aggByDistrict = getDistrictDtoCount(aggregations, "DistrictAggression");
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
         Map<String, Long> avgPriceMap = new HashMap<>();
-        for (DistrictDto districtDto : aggByDistrict) {
-            String district = districtDto.getDistrict();
+        for (Map.Entry<String, Integer> entry : aggByDistrict.entrySet()) {
+            String district = entry.getKey();
             BoolQueryBuilder queryBuilder1 =
                     QueryBuilders.boolQuery()
-                            .must(QueryBuilders.termQuery("district", district));
-            SearchRequest searchRequest = new SearchRequest("meituan");
+                            .must(QueryBuilders.termQuery(DISTRICT_FIELD_NAME, district));
+            SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
             searchRequest.source()
                     .query(queryBuilder1)
                     .aggregation(
@@ -147,13 +153,13 @@ public class DistrictServiceImpl implements DistrictService {
             }
             Aggregations aggregations1 = searchResponse.getAggregations();
             Sum totalPrice = aggregations1.get("totalPrice");
-            avgPriceMap.put(district, (long) (totalPrice.getValue() / districtDto.getCount()));
+            avgPriceMap.put(district, (long) (totalPrice.getValue() / entry.getValue()));
         }
-        return R.ok().put("result",avgPriceMap);
+        return R.ok().put(RESULT,avgPriceMap);
     }
 
     private SearchResponse getSearchResponse(QueryBuilder queryBuilder, String aggName, String fieldName){
-        SearchRequest searchRequest = new SearchRequest("meituan");
+        SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
         searchRequest.source()
                 .query(queryBuilder)
                 .aggregation(
@@ -170,20 +176,20 @@ public class DistrictServiceImpl implements DistrictService {
         }
     }
 
-    private List<DistrictDto> getDistrictDtoCount(Aggregations aggregations, String aggName) {
+    private Map<String, Integer> getDistrictDtoCount(Aggregations aggregations, String aggName) {
         // 4.1.根据聚合名称获取聚合结果
         Terms brandTerms = aggregations.get(aggName);
         // 4.2.获取buckets
         List<? extends Terms.Bucket> buckets = brandTerms.getBuckets();
         // 4.3.遍历
-        List<DistrictDto> districtDto = new ArrayList<>();
+        Map<String, Integer> map = new HashMap<>();
         for (Terms.Bucket bucket : buckets) {
             // 4.4.获取key
             String key = bucket.getKeyAsString();
-            long number = bucket.getDocCount();
-            districtDto.add(new DistrictDto(key, Math.toIntExact(number)));
+            int number = Math.toIntExact(bucket.getDocCount());
+            map.put(key, number);
         }
-        return districtDto;
+        return map;
     }
 
     private Map<String, Integer> getCategoryCount(Aggregations aggregations, String aggName) {
