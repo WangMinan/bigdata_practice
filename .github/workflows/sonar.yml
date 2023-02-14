@@ -16,4 +16,4 @@ jobs:
       with:
         host: ${{ secrets.SONARQUBE_HOST }}
         login: ${{ secrets.SONAR_SERVER_TOKEN }}
-        projectBaseDir: "meituan_server/"
+        projectBaseDir: "./meituan_server/"
