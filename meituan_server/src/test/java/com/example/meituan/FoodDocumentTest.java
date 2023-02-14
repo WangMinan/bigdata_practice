@@ -7,9 +7,11 @@ import com.example.meituan.service.FoodService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -18,10 +20,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 文档操作测试
@@ -35,11 +39,14 @@ class FoodDocumentTest {
     @Resource
     private FoodService foodService;
 
+    @Resource
+    private Environment config;
+
     @BeforeEach
     void setUp() {
         client = new RestHighLevelClient(RestClient.builder(
-                HttpHost.create("http://8.218.84.229:9200")
-        ));
+                HttpHost.create(Objects.requireNonNull(config.getProperty("var.elasticsearch.host"))))
+        );
     }
 
     @AfterEach
@@ -47,7 +54,7 @@ class FoodDocumentTest {
         client.close();
     }
 
-/*    @Test
+    @Test
     void testAddDocument() throws IOException {
         // 1.查询数据库hotel数据
         Food food = foodService.getById("1000386622");
@@ -75,17 +82,17 @@ class FoodDocumentTest {
 
         FoodDoc foodDoc = JSON.parseObject(json, FoodDoc.class);
         System.out.println("foodDoc = " + foodDoc);
-    }*/
+    }
 
-/*    @Test
+    @Test
     void testDeleteDocumentById() throws IOException {
         // 1.准备Request      // DELETE /hotel/_doc/{id}
         DeleteRequest request = new DeleteRequest("meituan", "1000386622");
         // 2.发送请求
         client.delete(request, RequestOptions.DEFAULT);
-    }*/
+    }
 
-/*    @Test
+    @Test
     void testUpdateById() throws IOException {
         // 1.准备Request
         UpdateRequest request = new UpdateRequest("hotel", "61083");
@@ -96,8 +103,7 @@ class FoodDocumentTest {
         // 3.发送请求
         client.update(request, RequestOptions.DEFAULT);
     }
-*/
-/*    @Test
+    @Test
     void testBulkRequest() throws IOException {
         // 查询所有的酒店数据
         List<Food> list = foodService.list();
@@ -116,5 +122,5 @@ class FoodDocumentTest {
 
         // 3.发送请求
         client.bulk(request, RequestOptions.DEFAULT);
-    }*/
+    }
 }

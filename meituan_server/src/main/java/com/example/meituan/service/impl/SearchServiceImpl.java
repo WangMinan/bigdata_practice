@@ -1,7 +1,5 @@
 package com.example.meituan.service.impl;
 
-import cn.hutool.core.math.MathUtil;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -42,7 +40,7 @@ import java.util.Map;
 
 /**
  * @author : [wangminan]
- * @description : [一句话描述该类的功能]
+ * @description : [搜索服务实现类]
  */
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -245,7 +243,7 @@ public class SearchServiceImpl implements SearchService {
             // 4.4.获取source
             String json = hit.getSourceAsString();
             // 4.5.反序列化，非高亮的
-            FoodDoc FoodDoc = JSON.parseObject(json, FoodDoc.class);
+            FoodDoc foodDoc = JSON.parseObject(json, FoodDoc.class);
             // 4.6.处理高亮结果
             // 1)获取高亮map
             Map<String, HighlightField> map = hit.getHighlightFields();
@@ -256,7 +254,7 @@ public class SearchServiceImpl implements SearchService {
                     // 3）获取高亮结果字符串数组中的第1个元素
                     String hName = highlightField.getFragments()[0].toString();
                     // 4）把高亮结果放到FoodDoc中
-                    FoodDoc.setTitle(hName);
+                    foodDoc.setTitle(hName);
                 }
             }
 /*            // 4.8.排序信息
@@ -266,7 +264,7 @@ public class SearchServiceImpl implements SearchService {
             }*/
 
             // 4.9.放入集合
-            merchants.add(FoodDoc);
+            merchants.add(foodDoc);
         }
         return new PageResult(total, merchants);
     }
@@ -281,13 +279,13 @@ public class SearchServiceImpl implements SearchService {
             // 4.4.获取source
             String json = hit.getSourceAsString();
             // 4.5.反序列化，非高亮的
-            FoodDoc FoodDoc = JSON.parseObject(json, FoodDoc.class);
+            FoodDoc foodDoc = JSON.parseObject(json, FoodDoc.class);
             Object[] sortValues = hit.getSortValues();
             if (sortValues.length > 0) {
-                FoodDoc.setDistance(sortValues[0]);
+                foodDoc.setDistance(sortValues[0]);
             }
             // 4.9.放入集合
-            merchants.add(FoodDoc);
+            merchants.add(foodDoc);
         }
         return merchants;
     }

@@ -2,9 +2,14 @@ package com.example.meituan.constants;
 
 /**
  * @author : [wangminan]
- * @description : [一句话描述该类的功能]
+ * @description : [索引建立语句]
  */
 public class FoodIndexConstants {
+
+    private FoodIndexConstants() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static final String MAPPING_TEMPLATE = """
             {
                       "settings": {

@@ -11,3 +11,7 @@ spring:
 #mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+var:
+  elasticsearch:
+    host: 8.218.84.229:9200

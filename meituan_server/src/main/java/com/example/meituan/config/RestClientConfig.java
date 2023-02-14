@@ -5,6 +5,10 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+
+import javax.annotation.Resource;
+import java.util.Objects;
 
 /**
  * @author : [wangminan]
@@ -13,11 +17,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RestClientConfig {
 
+    @Resource
+    private Environment config;
+
     @Bean
     public RestHighLevelClient client(){
         return new RestHighLevelClient(
                 RestClient.builder(
-                        HttpHost.create("http://8.218.84.229:9200")
+                        HttpHost.create(Objects.requireNonNull(config.getProperty("var.elasticsearch.host")))
                 )
         );
     }

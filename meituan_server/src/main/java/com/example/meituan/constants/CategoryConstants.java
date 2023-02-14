@@ -1,13 +1,19 @@
 package com.example.meituan.constants;
 
+import lombok.NoArgsConstructor;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author : [wangminan]
- * @description : [一句话描述该类的功能]
+ * @description : [类别]
  */
 public class CategoryConstants {
+
+    private CategoryConstants() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Map<String, Integer> initCategoryMap(){
         Map<String, Integer> result = new HashMap<>();

@@ -12,8 +12,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.example.meituan.constants.FoodIndexConstants.MAPPING_TEMPLATE;
 
@@ -25,10 +28,13 @@ class FoodIndexTest {
 
     private RestHighLevelClient client;
 
+    @Resource
+    private Environment config;
+
     @BeforeEach
     void setUp() {
         client = new RestHighLevelClient(RestClient.builder(
-                HttpHost.create("http://8.218.84.229:9200")
+                HttpHost.create(Objects.requireNonNull(config.getProperty("var.elasticsearch.host")))
         ));
     }
 
@@ -37,7 +43,7 @@ class FoodIndexTest {
         client.close();
     }
 
-/*    @Test
+    @Test
     void testCreateIndex() throws IOException {
         // 1.准备Request      PUT /hotel
         CreateIndexRequest request = new CreateIndexRequest("meituan");
@@ -63,5 +69,5 @@ class FoodIndexTest {
         DeleteIndexRequest request = new DeleteIndexRequest("meituan");
         // 3.发送请求
         client.indices().delete(request, RequestOptions.DEFAULT);
-    }*/
+    }
 }
