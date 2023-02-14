@@ -34,12 +34,12 @@ public class DistrictController {
      * @throws IOException IO异常
      */
     @GetMapping("/district/flow")
-    public R getFlowByDistrict() throws IOException {
+    public R getFlowByDistrict(){
         return foodDocService.getFlowByDistrict();
     }
 
     @GetMapping("/district/merchantType")
-    public R getMerchantTypeByDistrict() throws IOException {
+    public R getMerchantTypeByDistrict(){
         return foodDocService.getMerchantTypeByDistrict();
     }
 
@@ -49,7 +49,7 @@ public class DistrictController {
      * @throws IOException IO异常
      */
     @GetMapping("/district/avgPrice")
-    public R getAvgPriceByDistrict() throws IOException {
+    public R getAvgPriceByDistrict(){
         return foodDocService.getAvgPriceByDistrict();
     }
 }

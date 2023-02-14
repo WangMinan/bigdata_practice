@@ -5,11 +5,11 @@ import com.example.meituan.pojo.R;
 import java.io.IOException;
 
 public interface FoodDocService {
-    R getMerchantNumberByDistrict() throws IOException;
+    R getMerchantNumberByDistrict();
 
-    R getFlowByDistrict() throws IOException;
+    R getFlowByDistrict();
 
-    R getMerchantTypeByDistrict() throws IOException;
+    R getMerchantTypeByDistrict();
 
-    R getAvgPriceByDistrict() throws IOException;
+    R getAvgPriceByDistrict();
 }

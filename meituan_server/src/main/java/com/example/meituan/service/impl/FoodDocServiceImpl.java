@@ -39,7 +39,8 @@ public class FoodDocServiceImpl implements FoodDocService {
     @Override
     public R getMerchantNumberByDistrict(){
         SearchResponse response =
-                getSearchResponse(QueryBuilders.matchAllQuery(),"DistrictAggression", "district");
+                getSearchResponse(QueryBuilders.matchAllQuery(),
+                        "DistrictAggression", "district");
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
         List<DistrictDto> aggByDistrict = getDistrictDtoCount(aggregations, "DistrictAggression");
@@ -51,9 +52,10 @@ public class FoodDocServiceImpl implements FoodDocService {
      * @return 西安各行政区划餐饮历史评价数量对比
      */
     @Override
-    public R getFlowByDistrict() throws IOException{
+    public R getFlowByDistrict(){
         SearchResponse response =
-                getSearchResponse(QueryBuilders.matchAllQuery(),"DistrictAggression", "district");
+                getSearchResponse(QueryBuilders.matchAllQuery(),
+                        "DistrictAggression", "district");
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
         List<DistrictDto> aggByDistrict = getDistrictDtoCount(aggregations, "DistrictAggression");
@@ -71,7 +73,12 @@ public class FoodDocServiceImpl implements FoodDocService {
                                 .sum("flow")
                                 .field("allCommentNum")
             );
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchResponse searchResponse = null;
+            try {
+                searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             Aggregations aggregations1 = searchResponse.getAggregations();
             Sum flow = aggregations1.get("flow");
             // 转换 double转int
@@ -83,7 +90,8 @@ public class FoodDocServiceImpl implements FoodDocService {
     @Override
     public R getMerchantTypeByDistrict() {
         SearchResponse response =
-                getSearchResponse(QueryBuilders.matchAllQuery(),"DistrictAggression", "district");
+                getSearchResponse(QueryBuilders.matchAllQuery(),
+                        "DistrictAggression", "district");
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
         List<DistrictDto> aggByDistrict = getDistrictDtoCount(aggregations, "DistrictAggression");
@@ -103,11 +111,11 @@ public class FoodDocServiceImpl implements FoodDocService {
     }
 
     /**
-     * 获取各行政区划餐饮类型数量
-     * @return 各行政区划餐饮类型数量
+     * 获取各行政区划平均价格
+     * @return 各行政区划餐饮平均价格
      */
     @Override
-    public R getAvgPriceByDistrict() throws IOException {
+    public R getAvgPriceByDistrict(){
         RangeQueryBuilder queryBuilder =
                 QueryBuilders
                         .rangeQuery("avgPrice")
@@ -131,10 +139,14 @@ public class FoodDocServiceImpl implements FoodDocService {
                                     .sum("totalPrice")
                                     .field("avgPrice")
                     );
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchResponse searchResponse = null;
+            try {
+                searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             Aggregations aggregations1 = searchResponse.getAggregations();
             Sum totalPrice = aggregations1.get("totalPrice");
-            // 转换 double转int
             avgPriceMap.put(district, (long) (totalPrice.getValue() / districtDto.getCount()));
         }
         return R.ok().put("result",avgPriceMap);
@@ -145,11 +157,11 @@ public class FoodDocServiceImpl implements FoodDocService {
         searchRequest.source()
                 .query(queryBuilder)
                 .aggregation(
-                    AggregationBuilders
-                            .terms(aggName)
-                            .field(fieldName)
-                            .size(100)
-        );
+                        AggregationBuilders
+                                .terms(aggName)
+                                .field(fieldName)
+                                .size(100)
+                );
         // 发送请求
         try {
             return restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
