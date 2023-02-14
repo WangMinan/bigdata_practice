@@ -11,10 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+
+    - name: Change Dir
+    - run: cd ./meituan_server
+
     - name: SonarQube Scan
-      # uses: kitabisa/sonarqube-action@master
-      # with:
-      #   host: ${{ secrets.SONARQUBE_HOST }}
-      #   login: ${{ secrets.SONAR_SERVER_TOKEN }}
-      #   projectBaseDir: "bigdata_practice/meituan_server"
-      run: ls
+      uses: kitabisa/sonarqube-action@master
+      with:
+        host: ${{ secrets.SONARQUBE_HOST }}
+        login: ${{ secrets.SONAR_SERVER_TOKEN }}
