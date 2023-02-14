@@ -130,7 +130,7 @@ public class FoodShopServiceImpl implements FoodShopService {
 
     @Override
     public R getTotalCommentByCategory() throws IOException {
-        Map<String, Long> avgPriceMap = new HashMap<>();
+        Map<String, Long> commentMap = new HashMap<>();
         for (Map.Entry<String, Integer> cate : map.entrySet()) {
             List<CategoryDto> aggByCategory;
             SearchResponse response =
@@ -154,16 +154,16 @@ public class FoodShopServiceImpl implements FoodShopService {
                     .query(queryBuilder1)
                     .aggregation(
                             AggregationBuilders
-                                    .count("totalPrice")
-                                    .field("avgPrice")
+                                    .count("totalComment")
+                                    .field("allCommentNum")
                     );
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             Aggregations aggregations1 = searchResponse.getAggregations();
-            ParsedValueCount totalPrice = aggregations1.get("totalPrice");
+            ParsedValueCount totalComment = aggregations1.get("totalComment");
             // 转换 double转int
-            avgPriceMap.put(category, (long) (totalPrice.getValue() / cate.getValue()));
+            commentMap.put(category, (long)totalComment.value());
         }
-        return R.ok().put("result", avgPriceMap);
+        return R.ok().put("result", commentMap);
     }
 
     private SearchResponse getSearchResponse(QueryBuilder queryBuilder, String aggName, String fieldName) {
