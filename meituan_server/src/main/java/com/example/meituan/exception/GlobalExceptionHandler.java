@@ -22,13 +22,15 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    private static final String ERROR_FROM_REQUEST = "Error {} from Request:{}";
+
     /**
      * 请求方式不支持
      */
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public R handleMethodNotAllowed(Exception e, HttpServletRequest request) {
-        log.error("Error {} from Request:{}", e, request.getRequestURI());
+        log.error(ERROR_FROM_REQUEST, e, request.getRequestURI());
         return R.error(HttpStatus.METHOD_NOT_ALLOWED.value(), "请求方式不支持");
     }
 
@@ -39,7 +41,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({ServletRequestBindingException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
     public R handleBadRequest(Exception e, HttpServletRequest request) {
-        log.error("Error {} from Request:{}", e, request.getRequestURI());
+        log.error(ERROR_FROM_REQUEST, e, request.getRequestURI());
         return R.error(HttpStatus.BAD_REQUEST.value(), "请求格式错误");
     }
 
@@ -49,7 +51,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoHandlerFoundException.class)
     public R handleNotFoundException(NoHandlerFoundException e, HttpServletRequest request) {
-        log.error("Error {} from Request:{}", e, request.getRequestURI());
+        log.error(ERROR_FROM_REQUEST, e, request.getRequestURI());
         return R.error(HttpStatus.NOT_FOUND.value(), "请求URL有误");
     }
 
@@ -58,7 +60,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(SearchException.class)
     public R handleBusinessException(SearchException e, HttpServletRequest request) {
-        log.error("Error {} from Request:{}", e, request.getRequestURI());
+        log.error(ERROR_FROM_REQUEST, e, request.getRequestURI());
         return R.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
@@ -68,7 +70,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public R handleException(Exception e, HttpServletRequest request) {
-        log.error("Error {} from Request:{}", e, request.getRequestURI());
+        log.error(ERROR_FROM_REQUEST, e, request.getRequestURI());
         return R.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器内部错误");
     }
 }

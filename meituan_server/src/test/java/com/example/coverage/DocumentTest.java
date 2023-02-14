@@ -26,7 +26,7 @@ import static com.example.meituan.constants.FoodIndexConstants.MEITUAN_INDEX_NAM
  * @description : [覆盖率测试]
  */
 @SpringBootTest
-public class DocumentTest {
+class DocumentTest {
 
     private RestHighLevelClient client;
 

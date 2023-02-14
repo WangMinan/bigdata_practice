@@ -1,5 +1,6 @@
 package com.example.meituan.service.impl;
 
+import com.example.meituan.exception.SearchException;
 import com.example.meituan.pojo.R;
 import com.example.meituan.service.DistrictService;
 import org.elasticsearch.action.search.SearchRequest;
@@ -81,7 +82,7 @@ public class DistrictServiceImpl implements DistrictService {
             try {
                 searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SearchException("查询评价对比失败");
             }
             Aggregations aggregations1 = searchResponse.getAggregations();
             Sum flow = aggregations1.get("flow");
@@ -149,7 +150,7 @@ public class DistrictServiceImpl implements DistrictService {
             try {
                 searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SearchException("查询价格对比失败");
             }
             Aggregations aggregations1 = searchResponse.getAggregations();
             Sum totalPrice = aggregations1.get("totalPrice");
@@ -172,7 +173,7 @@ public class DistrictServiceImpl implements DistrictService {
         try {
             return restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new SearchException("查询失败");
         }
     }
 
