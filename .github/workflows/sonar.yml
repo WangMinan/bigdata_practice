@@ -13,7 +13,6 @@ jobs:
     - uses: actions/checkout@master
     - name: SonarQube Scan
       uses: kitabisa/sonarqube-action@master
-      run: ls
       with:
         host: ${{ secrets.SONARQUBE_HOST }}
         login: ${{ secrets.SONAR_SERVER_TOKEN }}
