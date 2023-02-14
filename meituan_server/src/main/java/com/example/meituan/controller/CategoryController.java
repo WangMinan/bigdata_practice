@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
  * @author : [wangminan]
@@ -18,12 +19,12 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/type/number")
-    public R getNumber(){
+    public R getNumber() throws IOException {
         return categoryService.getTotalShopByCategory();
     }
 
     @GetMapping("/type/avgPrice")
-    public R getAvgPrice(){
+    public R getAvgPrice() throws IOException {
         return categoryService.getAvgPriceByCategory();
     }
 }

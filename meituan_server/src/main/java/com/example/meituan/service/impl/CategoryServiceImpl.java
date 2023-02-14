@@ -3,8 +3,7 @@ package com.example.meituan.service.impl;
 import com.example.meituan.constants.CategoryConstants;
 import com.example.meituan.dto.CategoryDto;
 import com.example.meituan.pojo.R;
-import com.example.meituan.service.FoodShopService;
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
+import com.example.meituan.service.CategoryService;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class FoodShopServiceImpl implements FoodShopService {
+public class CategoryServiceImpl implements CategoryService {
 
     private static final Map<String, Integer> map = CategoryConstants.initCategoryMap();
     @Resource
@@ -114,12 +113,12 @@ public class FoodShopServiceImpl implements FoodShopService {
                     .query(queryBuilder1)
                     .aggregation(
                             AggregationBuilders
-                                    .count("totalPrice")
+                                    .sum("totalPrice")
                                     .field("avgPrice")
                     );
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             Aggregations aggregations1 = searchResponse.getAggregations();
-            ParsedValueCount totalPrice = aggregations1.get("totalPrice");
+            Sum totalPrice = aggregations1.get("totalPrice");
             // 转换 double转int
             avgPriceMap.put(category, (long) (totalPrice.getValue() / cate.getValue()));
         }
@@ -130,7 +129,7 @@ public class FoodShopServiceImpl implements FoodShopService {
 
     @Override
     public R getTotalCommentByCategory() throws IOException {
-        Map<String, Long> avgPriceMap = new HashMap<>();
+        Map<String, Long> commentMap = new HashMap<>();
         for (Map.Entry<String, Integer> cate : map.entrySet()) {
             List<CategoryDto> aggByCategory;
             SearchResponse response =
@@ -154,16 +153,16 @@ public class FoodShopServiceImpl implements FoodShopService {
                     .query(queryBuilder1)
                     .aggregation(
                             AggregationBuilders
-                                    .count("totalPrice")
-                                    .field("avgPrice")
+                                    .count("totalComment")
+                                    .field("allCommentNum")
                     );
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             Aggregations aggregations1 = searchResponse.getAggregations();
-            ParsedValueCount totalPrice = aggregations1.get("totalPrice");
+            ParsedValueCount totalPrice = aggregations1.get("totalComment");
             // 转换 double转int
-            avgPriceMap.put(category, (long) (totalPrice.getValue() / cate.getValue()));
+            commentMap.put(category, (long) (totalPrice.getValue()));
         }
-        return R.ok().put("result", avgPriceMap);
+        return R.ok().put("result", commentMap);
     }
 
     private SearchResponse getSearchResponse(QueryBuilder queryBuilder, String aggName, String fieldName) {
