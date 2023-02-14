@@ -146,7 +146,7 @@ public class DistrictServiceImpl implements DistrictService {
                                     .sum("totalPrice")
                                     .field("avgPrice")
                     );
-            SearchResponse searchResponse = null;
+            SearchResponse searchResponse;
             try {
                 searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
@@ -167,7 +167,6 @@ public class DistrictServiceImpl implements DistrictService {
                         AggregationBuilders
                                 .terms(aggName)
                                 .field(fieldName)
-                                .size(100)
                 );
         // 发送请求
         try {
