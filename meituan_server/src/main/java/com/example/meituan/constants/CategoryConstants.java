@@ -1,7 +1,5 @@
 package com.example.meituan.constants;
 
-import lombok.NoArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
 
