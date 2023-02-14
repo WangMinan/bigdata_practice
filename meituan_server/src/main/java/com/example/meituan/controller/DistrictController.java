@@ -42,4 +42,14 @@ public class DistrictController {
     public R getMerchantTypeByDistrict() throws IOException {
         return foodDocService.getMerchantTypeByDistrict();
     }
+
+    /**
+     * 西安各行政区划餐饮平均价格对比
+     * @return 西安各行政区划餐饮平均价格对比
+     * @throws IOException IO异常
+     */
+    @GetMapping("/district/avgPrice")
+    public R getAvgPriceByDistrict() throws IOException {
+        return foodDocService.getAvgPriceByDistrict();
+    }
 }

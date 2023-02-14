@@ -9,5 +9,7 @@ public interface FoodDocService {
 
     R getFlowByDistrict() throws IOException;
 
-    R getMerchantTypeByDistrict();
+    R getMerchantTypeByDistrict() throws IOException;
+
+    R getAvgPriceByDistrict() throws IOException;
 }
