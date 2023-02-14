@@ -1,0 +1,19 @@
+name: Sonarqube check
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sonarQubeTrigger:
+    name: SonarQube For meituan_server
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: SonarQube Scan
+      uses: kitabisa/sonarqube-action@master
+      with:
+        host: ${{ secrets.SONAR_HOST }}
+        login: ${{ secrets.SONAR_SERVER_TOKEN }}
+        projectBaseDir: "meituan_server/"
