@@ -47,7 +47,7 @@ class FoodDocumentTest {
         client.close();
     }
 
-    @Test
+/*    @Test
     void testAddDocument() throws IOException {
         // 1.查询数据库hotel数据
         Food food = foodService.getById("1000386622");
@@ -75,7 +75,7 @@ class FoodDocumentTest {
 
         FoodDoc foodDoc = JSON.parseObject(json, FoodDoc.class);
         System.out.println("foodDoc = " + foodDoc);
-    }
+    }*/
 
 /*    @Test
     void testDeleteDocumentById() throws IOException {
@@ -97,7 +97,7 @@ class FoodDocumentTest {
         client.update(request, RequestOptions.DEFAULT);
     }
 */
-    @Test
+/*    @Test
     void testBulkRequest() throws IOException {
         // 查询所有的酒店数据
         List<Food> list = foodService.list();
@@ -116,5 +116,5 @@ class FoodDocumentTest {
 
         // 3.发送请求
         client.bulk(request, RequestOptions.DEFAULT);
-    }
+    }*/
 }

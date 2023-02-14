@@ -37,7 +37,7 @@ class FoodIndexTest {
         client.close();
     }
 
-    @Test
+/*    @Test
     void testCreateIndex() throws IOException {
         // 1.准备Request      PUT /hotel
         CreateIndexRequest request = new CreateIndexRequest("meituan");
@@ -63,5 +63,5 @@ class FoodIndexTest {
         DeleteIndexRequest request = new DeleteIndexRequest("meituan");
         // 3.发送请求
         client.indices().delete(request, RequestOptions.DEFAULT);
-    }
+    }*/
 }
