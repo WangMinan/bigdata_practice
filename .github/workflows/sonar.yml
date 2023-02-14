@@ -12,8 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: SonarQube Scan
-      uses: kitabisa/sonarqube-action@master
-      with:
-        host: ${{ secrets.SONARQUBE_HOST }}
-        login: ${{ secrets.SONAR_SERVER_TOKEN }}
-        projectBaseDir: "bigdata_practice/meituan_server"
+      # uses: kitabisa/sonarqube-action@master
+      # with:
+      #   host: ${{ secrets.SONARQUBE_HOST }}
+      #   login: ${{ secrets.SONAR_SERVER_TOKEN }}
+      #   projectBaseDir: "bigdata_practice/meituan_server"
+      run: ls
