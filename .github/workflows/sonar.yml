@@ -7,7 +7,7 @@ on:
 
 jobs:
   sonarQubeTrigger:
-    name: SonarQube For meituan_server
+    name: SonarQube Check For meituan_server
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
