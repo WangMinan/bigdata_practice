@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@master
 
     - name: Change Dir
-    - run: cd ./meituan_server
+      run: cd ./meituan_server
 
     - name: SonarQube Scan
       uses: kitabisa/sonarqube-action@master
