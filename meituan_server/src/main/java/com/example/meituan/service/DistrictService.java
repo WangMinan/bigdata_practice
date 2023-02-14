@@ -2,9 +2,7 @@ package com.example.meituan.service;
 
 import com.example.meituan.pojo.R;
 
-import java.io.IOException;
-
-public interface FoodDocService {
+public interface DistrictService {
     R getMerchantNumberByDistrict();
 
     R getFlowByDistrict();

@@ -2,7 +2,7 @@ package com.example.meituan.service.impl;
 
 import com.example.meituan.dto.DistrictDto;
 import com.example.meituan.pojo.R;
-import com.example.meituan.service.FoodDocService;
+import com.example.meituan.service.DistrictService;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -31,7 +31,7 @@ import static com.example.meituan.constants.CategoryConstants.initCategoryMap;
  * @description : [一句话描述该类的功能]
  */
 @Service
-public class FoodDocServiceImpl implements FoodDocService {
+public class DistrictServiceImpl implements DistrictService {
 
     @Resource
     private RestHighLevelClient restHighLevelClient;

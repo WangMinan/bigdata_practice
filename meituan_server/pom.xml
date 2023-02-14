@@ -14,7 +14,7 @@
     <name>meituan_server</name>
     <description>meituan_server</description>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <elasticsearch.version>7.12.1</elasticsearch.version>
     </properties>
     <dependencies>
@@ -83,6 +83,14 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
         </plugins>
