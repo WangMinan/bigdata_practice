@@ -1,7 +1,7 @@
 package com.example.meituan.service.impl;
 
 import com.example.meituan.constants.CategoryConstants;
-import com.example.meituan.dto.CategoryDto;
+import com.example.meituan.exception.SearchException;
 import com.example.meituan.pojo.R;
 import com.example.meituan.service.CategoryService;
 import org.elasticsearch.action.search.SearchRequest;
@@ -11,6 +11,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -25,90 +26,71 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.meituan.constants.FoodIndexConstants.MEITUAN_INDEX_NAME;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    private static final Map<String, Integer> map = CategoryConstants.initCategoryMap();
+    private static final Map<String, Integer> categoryMap = CategoryConstants.initCategoryMap();
+
     @Resource
     private RestHighLevelClient restHighLevelClient;
 
     @Override
-    public R getTotalShopByCategory() throws IOException {
-        List<CategoryDto> CategoryMap = new ArrayList<>();
-        for (Map.Entry<String, Integer> cateName : map.entrySet()) {
-            List<CategoryDto> aggByCategory;
+    public R getTotalShopByCategory(){
+        Map<String, Integer> totalShopMap = new HashMap<>();
+        for (Map.Entry<String, Integer> cateName : categoryMap.entrySet()) {
+            Map<String, Integer> aggByCategory;
             SearchResponse response =
-                    getSearchResponse(QueryBuilders.matchQuery("all", cateName.getKey()), "CategoryAggression", "category");
+                    getSearchResponse(
+                            QueryBuilders.matchQuery("all", cateName.getKey()), "CategoryAggression", "category");
             // 解析聚合结果
             Aggregations aggregations = response.getAggregations();
             aggByCategory = getCategoryDtoCount(aggregations, "CategoryAggression");
             int cnt = 0;
-            for (CategoryDto categoryDto : aggByCategory) {
-                if (categoryDto.getCategory().equals("")) {
+            for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
+                if (categoryDto.getKey().equals("")) {
                     continue;
                 }
-                cnt += categoryDto.getCount();
+                cnt += categoryDto.getValue();
             }
-
-            CategoryMap.add(new CategoryDto(cateName.getKey(), cnt));
+            totalShopMap.put(cateName.getKey(), cnt);
         }
-        return R.ok().put("result", CategoryMap);
+        return R.ok().put("result", totalShopMap);
     }
 
     @Override
-    public R getAvgPriceByCategory() throws IOException {
-        Map<String, Long> avgPriceMap = new HashMap<>();
-        for (Map.Entry<String, Integer> cate : map.entrySet()) {
-            if(cate.getKey().startsWith("代金券")){
-                int cnt=0;
+    public R getAvgPriceByCategory(){
+        Map<String, Integer> avgPriceMap = new HashMap<>();
+        Map<String, Integer> aggByCategory;
+        RangeQueryBuilder queryBuilder =
+                QueryBuilders
+                        .rangeQuery("avgPrice")
+                        .gt(0);
+        SearchResponse response =
+                getSearchResponse(queryBuilder, "CategoryAggression", "category");
+        // 解析聚合结果
+        Aggregations aggregations = response.getAggregations();
+        aggByCategory = getCategoryDtoCount(aggregations, "CategoryAggression");
+
+        // 双层循环 获取某一类型店铺总数
+        for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
+            if (categoryDto.getKey().equals("")) {
+                continue;
             }
-            List<CategoryDto> aggByCategory;
-            SearchResponse response = getSearchResponse(
-                            QueryBuilders.matchQuery("all", cate.getKey()), "CategoryAggression", "category");
-            // 解析聚合结果
-            Aggregations aggregations = response.getAggregations();
-            aggByCategory = getCategoryDtoCount(aggregations, "CategoryAggression");
-
-            //{result={自助餐=74, 蒙餐=389, 海鲜=292, 创意菜=151, 台湾_客家菜=43, 烧烤烤肉=234, 新疆菜=131, 中式烧烤_烤串=223, 其他美食=157, 川湘菜=215, 代金券=67, 聚餐宴请=68, 西餐=152, 云贵菜=131, 汤_粥_炖菜=1180, 咖啡酒吧=2639, 江浙菜=131, 日韩料理=427, 西北菜=136, 蛋糕甜点=677, 东北菜=87, 京菜鲁菜=94, 素食=791, 火锅=214, 香锅烤鱼=298, 粤菜=161, 小吃快餐=162, 东南亚菜=131}, code=200}
-//            long TotalPrice = 0L;
-//            int cnt=0;
-//            for (CategoryDto categoryDto : aggByCategory) {
-//                if (categoryDto.getCategory().equals("")) {
-//                    continue;
-//                }
-//                String category = categoryDto.getCategory();
-//                BoolQueryBuilder queryBuilder1 =
-//                        QueryBuilders.boolQuery()
-//                                .must(QueryBuilders.termQuery("category",category));
-//                SearchRequest searchRequest = new SearchRequest("meituan");
-//                searchRequest.source()
-//                        .query(queryBuilder1)
-//                        .aggregation(
-//                                AggregationBuilders
-//                                        .sum("totalPrice")
-//                                        .field("avgPrice")
-//                        );
-//                SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-//                Aggregations aggregations1 = searchResponse.getAggregations();
-//                Sum totalPrice = aggregations1.get("totalPrice");
-//                // 转换 double转int
-//                TotalPrice+=(long)totalPrice.getValue();
-//                cnt+=categoryDto.getCount();
-//            }
-//            avgPriceMap.put(cate.getKey(), (long) (TotalPrice/cnt));
-
-            //{result={自助餐=74, 蒙餐=73, 海鲜=74, 创意菜=62, 台湾_客家菜=43, 烧烤烤肉=80, 新疆菜=59, 中式烧烤_烤串=70, 其他美食=64, 川湘菜=61, 代金券=72, 聚餐宴请=75, 西餐=74, 云贵菜=58, 汤_粥_炖菜=54, 咖啡酒吧=190, 江浙菜=58, 日韩料理=101, 西北菜=60, 蛋糕甜点=585, 东北菜=42, 京菜鲁菜=52, 素食=50, 火锅=106, 香锅烤鱼=78, 粤菜=99, 小吃快餐=33, 东南亚菜=58}, code=200}
-            for (CategoryDto categoryDto : aggByCategory) {
-                if (categoryDto.getCategory().equals("")) {
-                    continue;
+            for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
+                if (categoryDto.getKey().contains(cate.getKey())) {
+                    categoryMap.put(cate.getKey(), cate.getValue() + categoryDto.getValue());
                 }
-                cate.setValue(categoryDto.getCount() + cate.getValue());
             }
+        }
+
+        for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
             String category = cate.getKey();
             BoolQueryBuilder queryBuilder1 =
                     QueryBuilders.boolQuery()
-                            .must(QueryBuilders.matchQuery("all", category));
-            SearchRequest searchRequest = new SearchRequest("meituan");
+                            .must(QueryBuilders.wildcardQuery("category", "*" + category + "*"));
+            SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
             searchRequest.source()
                     .query(queryBuilder1)
                     .aggregation(
@@ -116,11 +98,17 @@ public class CategoryServiceImpl implements CategoryService {
                                     .sum("totalPrice")
                                     .field("avgPrice")
                     );
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchResponse searchResponse = null;
+            try {
+                searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                throw new SearchException("查询价格失败");
+            }
             Aggregations aggregations1 = searchResponse.getAggregations();
             Sum totalPrice = aggregations1.get("totalPrice");
             // 转换 double转int
-            avgPriceMap.put(category, (long) (totalPrice.getValue() / cate.getValue()));
+            avgPriceMap.put(category,
+                    totalPrice.getValue() == 0 ? 0: (int) totalPrice.getValue() / cate.getValue());
         }
 
 
@@ -128,21 +116,21 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public R getTotalCommentByCategory() throws IOException {
+    public R getTotalCommentByCategory(){
         Map<String, Long> commentMap = new HashMap<>();
-        for (Map.Entry<String, Integer> cate : map.entrySet()) {
-            List<CategoryDto> aggByCategory;
+        for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
+            Map<String, Integer> aggByCategory;
             SearchResponse response =
                     getSearchResponse(QueryBuilders.matchQuery("all", cate.getKey()), "CategoryAggression", "category");
             // 解析聚合结果
             Aggregations aggregations = response.getAggregations();
             aggByCategory = getCategoryDtoCount(aggregations, "CategoryAggression");
 
-            for (CategoryDto categoryDto : aggByCategory) {
-                if (categoryDto.getCategory().equals("")) {
+            for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
+                if (categoryDto.getKey().equals("")) {
                     continue;
                 }
-                cate.setValue(categoryDto.getCount() + cate.getValue());
+                cate.setValue(categoryDto.getValue() + cate.getValue());
             }
             String category = cate.getKey();
             BoolQueryBuilder queryBuilder1 =
@@ -156,11 +144,16 @@ public class CategoryServiceImpl implements CategoryService {
                                     .count("totalComment")
                                     .field("allCommentNum")
                     );
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            SearchResponse searchResponse = null;
+            try {
+                searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            } catch (IOException e) {
+                throw new SearchException("查询评论失败");
+            }
             Aggregations aggregations1 = searchResponse.getAggregations();
             ParsedValueCount totalComment = aggregations1.get("totalComment");
             // 转换 double转int
-            commentMap.put(category, (long) (totalComment.getValue()));
+            commentMap.put(category, totalComment.getValue());
         }
         return R.ok().put("result", commentMap);
     }
@@ -173,7 +166,7 @@ public class CategoryServiceImpl implements CategoryService {
                         AggregationBuilders
                                 .terms(aggName)
                                 .field(fieldName)
-                                .size(100)
+                                .size(600)
                 );
         // 发送请求
         try {
@@ -183,18 +176,18 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
-    private List<CategoryDto> getCategoryDtoCount(Aggregations aggregations, String aggName) {
+    private Map<String, Integer> getCategoryDtoCount(Aggregations aggregations, String aggName) {
         // 4.1.根据聚合名称获取聚合结果
         Terms brandTerms = aggregations.get(aggName);
         // 4.2.获取buckets
         List<? extends Terms.Bucket> buckets = brandTerms.getBuckets();
         // 4.3.遍历
-        List<CategoryDto> categoryDto = new ArrayList<>();
+        Map<String, Integer> categoryDto = new HashMap<>();
         for (Terms.Bucket bucket : buckets) {
             // 4.4.获取key
             String key = bucket.getKeyAsString();
             long number = bucket.getDocCount();
-            categoryDto.add(new CategoryDto(key, Math.toIntExact(number)));
+            categoryDto.put(key, (int) number);
         }
         return categoryDto;
     }

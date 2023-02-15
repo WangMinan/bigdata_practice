@@ -5,9 +5,9 @@ import com.example.meituan.pojo.R;
 import java.io.IOException;
 
 public interface CategoryService {
-    R getTotalShopByCategory() throws IOException;
+    R getTotalShopByCategory();
 
-    R getAvgPriceByCategory() throws IOException;
+    R getAvgPriceByCategory();
 
-    R getTotalCommentByCategory() throws IOException;
+    R getTotalCommentByCategory();
 }

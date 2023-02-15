@@ -167,6 +167,7 @@ public class DistrictServiceImpl implements DistrictService {
                         AggregationBuilders
                                 .terms(aggName)
                                 .field(fieldName)
+                                .size(100)
                 );
         // 发送请求
         try {
