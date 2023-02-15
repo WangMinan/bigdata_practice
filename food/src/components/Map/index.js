@@ -2,23 +2,35 @@ import React, { Component } from 'react'
 import * as ECharts  from 'echarts'
 // import EChartsReact from 'echarts-for-react'
 import ret from '../../json/map/西安市.json'
+import axios from 'axios'
 
 export default class Map extends Component {
 
   state={shopData:null,commentData:null,use:1,mcharts:null,tex:"按商户数量"}
     componentDidMount(){
-      let shopData,commentData
-      axios.defaults.baseURL='http://127.0.0.1:8080'//设定baseURL
+      let shopData=[],commentData=[]
+      axios.defaults.baseURL='https://meituan.wangminan.me'//设定baseURL
       axios.get('/district/merchantNumber',{
 
       }).then(value=>{
-        shopData=value.result
+        let values=Object.values(value.data.result)
+        let keys=Object.keys(value.data.result)
+        for(let i=0;i<values.length;i++){
+          let tmp={name:keys[i],value:values[i]}
+          shopData.push(tmp)
+        }
         this.setState({shopData})
       })
       axios.get('/district/flow',{
 
       }).then(value=>{
-        commentData=value.result
+        // commentData=value.data.result
+        let values=Object.values(value.data.result)
+        let keys=Object.keys(value.data.result)
+        for(let i=0;i<values.length;i++){
+          let tmp={name:keys[i],value:values[i]}
+          commentData.push(tmp)
+        }
         this.setState({commentData})
       })
       let mcharts=ECharts.init(document.getElementById('xian'))
@@ -52,8 +64,9 @@ export default class Map extends Component {
 
     componentDidUpdate(){
       const {use,mcharts,shopData,commentData}=this.state
+      let option
       if(use===2){
-        let option={
+        option={
           series:[
             {
               data:commentData,
@@ -63,7 +76,7 @@ export default class Map extends Component {
           ],
           visualMap:{
             min:0,
-            max:55000,
+            max:1500000,
             inRange:{
                 color:['white','green'],//指定渐变色区域
             },
@@ -71,7 +84,7 @@ export default class Map extends Component {
           }
         }
       }else if(use===1){
-        let option={
+        option={
           series:[
             {
               data:shopData,
@@ -107,7 +120,7 @@ export default class Map extends Component {
     render() {
     return (
       <div>
-        <div id='xian' style={{width:600,height:400}}>
+        <div id='xian' style={{width:600,height:400,borderStyle:'solid'}} >
         
         </div>
         <button onClick={this.changeMap}>{this.state.tex}</button>
