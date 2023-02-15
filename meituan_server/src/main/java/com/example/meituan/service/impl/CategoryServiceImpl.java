@@ -158,9 +158,9 @@ public class CategoryServiceImpl implements CategoryService {
                     );
             SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             Aggregations aggregations1 = searchResponse.getAggregations();
-            ParsedValueCount totalPrice = aggregations1.get("totalComment");
+            ParsedValueCount totalComment = aggregations1.get("totalComment");
             // 转换 double转int
-            commentMap.put(category, (long) (totalPrice.getValue()));
+            commentMap.put(category, (long) (totalComment.getValue()));
         }
         return R.ok().put("result", commentMap);
     }
