@@ -28,5 +28,6 @@ jobs:
       - name: 上传jar包到服务器中
         run: cd ./meituan_server && sshpass -p ${{secrets.REMOTE_PWD}} scp -r -o StrictHostKeyChecking=no ./target/meituan_server-0.0.1-SNAPSHOT.jar root@${{secrets.REMOTE_IP}}:/usr/local/meituan
 
+
       # - name: 启动项目
       #   run: sshpass -p ${{secrets.REMOTE_PWD}} ssh -o StrictHostKeyChecking=no root@${{secrets.REMOTE_IP}} "/usr/local/nodejs/nodejs16/bin/pm2 restart meituan_server"
