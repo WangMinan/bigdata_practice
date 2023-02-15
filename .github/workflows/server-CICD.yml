@@ -22,11 +22,11 @@ jobs:
       - name: 项目打包
         run: cd ./meituan_server && mvn -B package
 
-      - name: 删除旧的jar包以及运行脚本
+      - name: 删除旧的jar包
         run: sshpass -p ${{secrets.REMOTE_PWD}} ssh -o StrictHostKeyChecking=no root@${{secrets.REMOTE_IP}} "cd /usr/local/meituan && rm -rf ./meituan_server-0.0.1-SNAPSHOT.jar"
 
-      - name: 上传jar包和启动脚本到服务器中
+      - name: 上传jar包到服务器中
         run: cd ./meituan_server && sshpass -p ${{secrets.REMOTE_PWD}} scp -r -o StrictHostKeyChecking=no ./target/meituan_server-0.0.1-SNAPSHOT.jar root@${{secrets.REMOTE_IP}}:/usr/local/meituan
 
-      - name: 启动项目
-        run: sshpass -p ${{secrets.REMOTE_PWD}} ssh -o StrictHostKeyChecking=no root@${{secrets.REMOTE_IP}} "pm2 restart meituan_server && pm2 save"
+      # - name: 启动项目
+      #   run: sshpass -p ${{secrets.REMOTE_PWD}} ssh -o StrictHostKeyChecking=no root@${{secrets.REMOTE_IP}} "/usr/local/nodejs/nodejs16/bin/pm2 restart meituan_server"
