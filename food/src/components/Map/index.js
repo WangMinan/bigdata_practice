@@ -5,47 +5,114 @@ import ret from '../../json/map/西安市.json'
 
 export default class Map extends Component {
 
+  state={shopData:null,commentData:null,use:1,mcharts:null,tex:"按商户数量"}
     componentDidMount(){
-      let shopData
+      let shopData,commentData
       axios.defaults.baseURL='http://127.0.0.1:8080'//设定baseURL
       axios.get('/district/merchantNumber',{
 
       }).then(value=>{
         shopData=value.result
+        this.setState({shopData})
       })
-        let mcharts=ECharts.init(document.getElementById('xian'))
-        ECharts.registerMap('xianmap',ret)
-        let option={
-            geo:{
-                type:'map',
-                map:'xianmap',
-                roam:true,
-                zoom:1,
-            },
-            series:[
-              {
-                data:shopData,
-                geoIndex:0,
-                type:'map'
-              }
-            ],
-            visualMap:{
-              min:0,
-              max:3000,
-              inRange:{
-                  color:['white','red'],//指定渐变色区域
-              },
-              calculable:true,//允许数据筛选（利用滑块）
+      axios.get('/district/flow',{
+
+      }).then(value=>{
+        commentData=value.result
+        this.setState({commentData})
+      })
+      let mcharts=ECharts.init(document.getElementById('xian'))
+      this.setState({mcharts})
+      ECharts.registerMap('xianmap',ret)
+      let option={
+          geo:{
+              type:'map',
+              map:'xianmap',
+              roam:true,
+              zoom:1,
+          },
+          series:[
+            {
+              data:shopData,
+              geoIndex:0,
+              type:'map'
             }
+          ],
+          visualMap:{
+            min:0,
+            max:3000,
+            inRange:{
+                color:['white','red'],//指定渐变色区域
+            },
+            calculable:true,//允许数据筛选（利用滑块）
+          }
+      }
+      mcharts.setOption(option)
+    }
+
+    componentDidUpdate(){
+      const {use,mcharts,shopData,commentData}=this.state
+      if(use===2){
+        let option={
+          series:[
+            {
+              data:commentData,
+              geoIndex:0,
+              type:'map'
+            }
+          ],
+          visualMap:{
+            min:0,
+            max:55000,
+            inRange:{
+                color:['white','green'],//指定渐变色区域
+            },
+            calculable:true,//允许数据筛选（利用滑块）
+          }
         }
-        mcharts.setOption(option)
+      }else if(use===1){
+        let option={
+          series:[
+            {
+              data:shopData,
+              geoIndex:0,
+              type:'map'
+            }
+          ],
+          visualMap:{
+            min:0,
+            max:3000,
+            inRange:{
+                color:['white','red'],//指定渐变色区域
+            },
+            calculable:true,//允许数据筛选（利用滑块）
+          }
+        }
+      }
+      mcharts.setOption(option)
+    }
+
+    changeMap=()=>{
+      //更改地图的着色数据 1:shop 2:comment
+      const {use}=this.state
+      if(use===1){
+        this.setState({use:2})
+        this.setState({tex:"按评论数量"})
+      }else if(use===2){
+        this.setState({use:1})
+        this.setState({tex:"按商户数量"})
+      }
     }
 
     render() {
     return (
-      <div id='xian' style={{width:600,height:400}}>
+      <div>
+        <div id='xian' style={{width:600,height:400}}>
         
+        </div>
+        <button onClick={this.changeMap}>{this.state.tex}</button>
       </div>
+      
     )
   }
 }
