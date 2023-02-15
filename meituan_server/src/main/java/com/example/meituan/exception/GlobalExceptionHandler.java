@@ -13,6 +13,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 /**
  * 全局异常处理
@@ -61,6 +62,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SearchException.class)
     public R handleBusinessException(SearchException e, HttpServletRequest request) {
         log.error(ERROR_FROM_REQUEST, e, request.getRequestURI());
+        log.error(Arrays.toString(e.getStackTrace()));
         return R.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
@@ -71,6 +73,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public R handleException(Exception e, HttpServletRequest request) {
         log.error(ERROR_FROM_REQUEST, e, request.getRequestURI());
+        log.error(Arrays.toString(e.getStackTrace()));
         return R.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器内部错误");
     }
 }
