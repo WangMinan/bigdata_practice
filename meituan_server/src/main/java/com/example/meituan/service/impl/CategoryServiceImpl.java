@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     private static final Map<String, Integer> categoryMap = CategoryConstants.initCategoryMap();
 
+    private static final String CATEGORY_AGG_NAME = "CategoryAggression";
+    private static final String CATEGORY_FIELD_NAME = "category";
+    private static final String RESULT = "result";
+
     @Resource
     private RestHighLevelClient restHighLevelClient;
 
@@ -43,10 +46,10 @@ public class CategoryServiceImpl implements CategoryService {
             Map<String, Integer> aggByCategory;
             SearchResponse response =
                     getSearchResponse(
-                            QueryBuilders.matchQuery("all", cateName.getKey()), "CategoryAggression", "category");
+                            QueryBuilders.matchQuery("all", cateName.getKey()), CATEGORY_AGG_NAME, CATEGORY_FIELD_NAME);
             // 解析聚合结果
             Aggregations aggregations = response.getAggregations();
-            aggByCategory = getCategoryDtoCount(aggregations, "CategoryAggression");
+            aggByCategory = getCategoryDtoCount(aggregations, CATEGORY_AGG_NAME);
             int cnt = 0;
             for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
                 if (categoryDto.getKey().equals("")) {
@@ -56,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
             }
             totalShopMap.put(cateName.getKey(), cnt);
         }
-        return R.ok().put("result", totalShopMap);
+        return R.ok().put(RESULT, totalShopMap);
     }
 
     @Override
@@ -68,10 +71,10 @@ public class CategoryServiceImpl implements CategoryService {
                         .rangeQuery("avgPrice")
                         .gt(0);
         SearchResponse response =
-                getSearchResponse(queryBuilder, "CategoryAggression", "category");
+                getSearchResponse(queryBuilder, CATEGORY_AGG_NAME, CATEGORY_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        aggByCategory = getCategoryDtoCount(aggregations, "CategoryAggression");
+        aggByCategory = getCategoryDtoCount(aggregations, CATEGORY_AGG_NAME);
 
         // 双层循环 获取某一类型店铺总数
         for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
@@ -89,7 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
             String category = cate.getKey();
             BoolQueryBuilder queryBuilder1 =
                     QueryBuilders.boolQuery()
-                            .must(QueryBuilders.wildcardQuery("category", "*" + category + "*"));
+                            .must(QueryBuilders.wildcardQuery(CATEGORY_FIELD_NAME, "*" + category + "*"));
             SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
             searchRequest.source()
                     .query(queryBuilder1)
@@ -112,7 +115,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
 
-        return R.ok().put("result", avgPriceMap);
+        return R.ok().put(RESULT, avgPriceMap);
     }
 
     @Override
@@ -121,10 +124,10 @@ public class CategoryServiceImpl implements CategoryService {
         for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
             Map<String, Integer> aggByCategory;
             SearchResponse response =
-                    getSearchResponse(QueryBuilders.matchQuery("all", cate.getKey()), "CategoryAggression", "category");
+                    getSearchResponse(QueryBuilders.matchQuery("all", cate.getKey()), CATEGORY_AGG_NAME, CATEGORY_FIELD_NAME);
             // 解析聚合结果
             Aggregations aggregations = response.getAggregations();
-            aggByCategory = getCategoryDtoCount(aggregations, "CategoryAggression");
+            aggByCategory = getCategoryDtoCount(aggregations, CATEGORY_AGG_NAME);
 
             for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
                 if (categoryDto.getKey().equals("")) {
@@ -136,7 +139,7 @@ public class CategoryServiceImpl implements CategoryService {
             BoolQueryBuilder queryBuilder1 =
                     QueryBuilders.boolQuery()
                             .must(QueryBuilders.matchQuery("all", category));
-            SearchRequest searchRequest = new SearchRequest("meituan");
+            SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
             searchRequest.source()
                     .query(queryBuilder1)
                     .aggregation(
@@ -144,7 +147,7 @@ public class CategoryServiceImpl implements CategoryService {
                                     .count("totalComment")
                                     .field("allCommentNum")
                     );
-            SearchResponse searchResponse = null;
+            SearchResponse searchResponse;
             try {
                 searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
@@ -155,11 +158,11 @@ public class CategoryServiceImpl implements CategoryService {
             // 转换 double转int
             commentMap.put(category, totalComment.getValue());
         }
-        return R.ok().put("result", commentMap);
+        return R.ok().put(RESULT, commentMap);
     }
 
     private SearchResponse getSearchResponse(QueryBuilder queryBuilder, String aggName, String fieldName) {
-        SearchRequest searchRequest = new SearchRequest("meituan");
+        SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
         searchRequest.source()
                 .query(queryBuilder)
                 .aggregation(
@@ -172,7 +175,7 @@ public class CategoryServiceImpl implements CategoryService {
         try {
             return restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new SearchException("查询评价失败");
         }
     }
 

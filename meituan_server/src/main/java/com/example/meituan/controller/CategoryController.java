@@ -2,12 +2,10 @@ package com.example.meituan.controller;
 
 import com.example.meituan.pojo.R;
 import com.example.meituan.service.CategoryService;
-import org.elasticsearch.index.engine.Engine;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 
 /**
  * @author : [wangminan]
@@ -20,12 +18,12 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/type/number")
-    public R getNumber() throws IOException {
+    public R getNumber() {
         return categoryService.getTotalShopByCategory();
     }
 
     @GetMapping("/type/avgPrice")
-    public R getAvgPrice() throws IOException {
+    public R getAvgPrice() {
         return categoryService.getAvgPriceByCategory();
     }
 
