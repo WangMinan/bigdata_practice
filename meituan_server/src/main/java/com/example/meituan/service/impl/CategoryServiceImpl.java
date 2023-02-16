@@ -15,7 +15,6 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.ParsedValueCount;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.springframework.stereotype.Service;
 
@@ -41,52 +40,26 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public R getTotalShopByCategory(){
-        Map<String, Integer> totalShopMap = new HashMap<>();
-        for (Map.Entry<String, Integer> cateName : categoryMap.entrySet()) {
-            Map<String, Integer> aggByCategory;
-            SearchResponse response =
-                    getSearchResponse(
-                            QueryBuilders.matchQuery("all", cateName.getKey()), CATEGORY_AGG_NAME, CATEGORY_FIELD_NAME);
-            // 解析聚合结果
-            Aggregations aggregations = response.getAggregations();
-            aggByCategory = getCategoryDtoCount(aggregations, CATEGORY_AGG_NAME);
-            int cnt = 0;
-            for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
-                if (categoryDto.getKey().equals("")) {
-                    continue;
-                }
-                cnt += categoryDto.getValue();
-            }
-            totalShopMap.put(cateName.getKey(), cnt);
-        }
-        return R.ok().put(RESULT, totalShopMap);
+        SearchResponse response =
+                getSearchResponse(QueryBuilders.matchAllQuery());
+        // 解析聚合结果
+        Aggregations aggregations = response.getAggregations();
+        getNumberOfMerchantsByAgg(aggregations);
+        return R.ok().put(RESULT, categoryMap);
     }
 
     @Override
     public R getAvgPriceByCategory(){
         Map<String, Integer> avgPriceMap = new HashMap<>();
-        Map<String, Integer> aggByCategory;
         RangeQueryBuilder queryBuilder =
                 QueryBuilders
                         .rangeQuery("avgPrice")
                         .gt(0);
         SearchResponse response =
-                getSearchResponse(queryBuilder, CATEGORY_AGG_NAME, CATEGORY_FIELD_NAME);
+                getSearchResponse(queryBuilder);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        aggByCategory = getCategoryDtoCount(aggregations, CATEGORY_AGG_NAME);
-
-        // 双层循环 获取某一类型店铺总数
-        for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
-            if (categoryDto.getKey().equals("")) {
-                continue;
-            }
-            for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
-                if (categoryDto.getKey().contains(cate.getKey())) {
-                    categoryMap.put(cate.getKey(), cate.getValue() + categoryDto.getValue());
-                }
-            }
-        }
+        getNumberOfMerchantsByAgg(aggregations);
 
         for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
             String category = cate.getKey();
@@ -101,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
                                     .sum("totalPrice")
                                     .field("avgPrice")
                     );
-            SearchResponse searchResponse = null;
+            SearchResponse searchResponse;
             try {
                 searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
@@ -113,62 +86,71 @@ public class CategoryServiceImpl implements CategoryService {
             avgPriceMap.put(category,
                     totalPrice.getValue() == 0 ? 0: (int) totalPrice.getValue() / cate.getValue());
         }
-
-
         return R.ok().put(RESULT, avgPriceMap);
     }
 
     @Override
     public R getTotalCommentByCategory(){
-        Map<String, Long> commentMap = new HashMap<>();
-        for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
-            Map<String, Integer> aggByCategory;
-            SearchResponse response =
-                    getSearchResponse(QueryBuilders.matchQuery("all", cate.getKey()), CATEGORY_AGG_NAME, CATEGORY_FIELD_NAME);
-            // 解析聚合结果
-            Aggregations aggregations = response.getAggregations();
-            aggByCategory = getCategoryDtoCount(aggregations, CATEGORY_AGG_NAME);
+        Map<String, Integer> totalCommentMap = new HashMap<>();
+        SearchResponse response =
+                getSearchResponse(QueryBuilders.matchAllQuery());
+        // 解析聚合结果
+        Aggregations aggregations = response.getAggregations();
+        getNumberOfMerchantsByAgg(aggregations);
 
-            for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
-                if (categoryDto.getKey().equals("")) {
-                    continue;
-                }
-                cate.setValue(categoryDto.getValue() + cate.getValue());
-            }
+        for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
             String category = cate.getKey();
             BoolQueryBuilder queryBuilder1 =
                     QueryBuilders.boolQuery()
-                            .must(QueryBuilders.matchQuery("all", category));
+                            .must(QueryBuilders.wildcardQuery(CATEGORY_FIELD_NAME, "*" + category + "*"));
             SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
             searchRequest.source()
                     .query(queryBuilder1)
                     .aggregation(
                             AggregationBuilders
-                                    .count("totalComment")
+                                    .sum("totalComment")
                                     .field("allCommentNum")
                     );
             SearchResponse searchResponse;
             try {
                 searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
-                throw new SearchException("查询评论失败");
+                throw new SearchException("查询评论数失败");
             }
             Aggregations aggregations1 = searchResponse.getAggregations();
-            ParsedValueCount totalComment = aggregations1.get("totalComment");
+            Sum totalComment = aggregations1.get("totalComment");
             // 转换 double转int
-            commentMap.put(category, totalComment.getValue());
+            totalCommentMap.put(category,
+                    totalComment.getValue() == 0 ? 0: (int) totalComment.getValue());
         }
-        return R.ok().put(RESULT, commentMap);
+        return R.ok().put(RESULT, totalCommentMap);
     }
 
-    private SearchResponse getSearchResponse(QueryBuilder queryBuilder, String aggName, String fieldName) {
+    private void getNumberOfMerchantsByAgg(Aggregations aggregations) {
+        Map<String, Integer> aggByCategory;
+        aggByCategory = getCategoryDtoCount(aggregations);
+
+        // 双层循环 获取某一类型店铺总数
+        for (Map.Entry<String, Integer> categoryDto : aggByCategory.entrySet()) {
+            if (categoryDto.getKey().equals("")) {
+                continue;
+            }
+            for (Map.Entry<String, Integer> cate : categoryMap.entrySet()) {
+                if (categoryDto.getKey().contains(cate.getKey())) {
+                    categoryMap.put(cate.getKey(), cate.getValue() + categoryDto.getValue());
+                }
+            }
+        }
+    }
+
+    private SearchResponse getSearchResponse(QueryBuilder queryBuilder) {
         SearchRequest searchRequest = new SearchRequest(MEITUAN_INDEX_NAME);
         searchRequest.source()
                 .query(queryBuilder)
                 .aggregation(
                         AggregationBuilders
-                                .terms(aggName)
-                                .field(fieldName)
+                                .terms(CategoryServiceImpl.CATEGORY_AGG_NAME)
+                                .field(CategoryServiceImpl.CATEGORY_FIELD_NAME)
                                 .size(600)
                 );
         // 发送请求
@@ -179,9 +161,9 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
-    private Map<String, Integer> getCategoryDtoCount(Aggregations aggregations, String aggName) {
+    private Map<String, Integer> getCategoryDtoCount(Aggregations aggregations) {
         // 4.1.根据聚合名称获取聚合结果
-        Terms brandTerms = aggregations.get(aggName);
+        Terms brandTerms = aggregations.get(CategoryServiceImpl.CATEGORY_AGG_NAME);
         // 4.2.获取buckets
         List<? extends Terms.Bucket> buckets = brandTerms.getBuckets();
         // 4.3.遍历

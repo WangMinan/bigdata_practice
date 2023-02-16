@@ -24,7 +24,7 @@ public class DistrictController {
      * @throws IOException IO异常
      */
     @GetMapping("/district/merchantNumber")
-    public R getMerchantNumberByDistrict() throws IOException {
+    public R getMerchantNumberByDistrict() {
         return districtService.getMerchantNumberByDistrict();
     }
 
