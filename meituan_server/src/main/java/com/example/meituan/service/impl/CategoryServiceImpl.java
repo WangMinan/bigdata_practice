@@ -53,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public R getAvgPriceByCategory(){
         // 重置 categoryMap
-        categoryMap = CategoryConstants.initCategoryMap();
+        resetCategoryMap();
         Map<String, Integer> avgPriceMap = new HashMap<>();
         RangeQueryBuilder queryBuilder =
                 QueryBuilders
@@ -77,7 +77,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public R getTotalCommentByCategory(){
         // 重置 categoryMap
-        categoryMap = CategoryConstants.initCategoryMap();
+        resetCategoryMap();
         Map<String, Integer> totalCommentMap = new HashMap<>();
         putMerchantNumberToMap(QueryBuilders.matchAllQuery());
 
@@ -90,8 +90,6 @@ public class CategoryServiceImpl implements CategoryService {
             // 转换 double转int
             totalCommentMap.put(category, (int) totalComment.getValue());
         }
-        // 重置 categoryMap
-        categoryMap = CategoryConstants.initCategoryMap();
         return R.ok().put(RESULT, totalCommentMap);
     }
 
@@ -172,5 +170,9 @@ public class CategoryServiceImpl implements CategoryService {
             categoryDto.put(key, (int) number);
         }
         return categoryDto;
+    }
+
+    private static void resetCategoryMap() {
+        categoryMap = CategoryConstants.initCategoryMap();
     }
 }
