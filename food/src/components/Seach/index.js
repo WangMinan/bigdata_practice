@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import axios from 'axios';
 import { Input } from 'antd';
-import { AutoComplete,Pagination } from 'antd'
+import { AutoComplete,Pagination,Button } from 'antd'
 
 // const { Search } = Input;
 const { TextArea } = Input;
 
 export default class Seach extends Component {
-    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null}
+    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null,pagemod:0,needmod:false}
     handleChange=(e)=>{
         // console.log(e)
         let datas=["加载中..."]
@@ -26,25 +26,22 @@ export default class Seach extends Component {
             // console.log(response.data.result)
             const {result}=response.data
             this.setState({dataSource:result})
-            // let str=""
-            // for(let i=0;i<10;i++){
-            //     str+=result[i]
-            //     str+='\n'
-            // }
-            // this.setState({textvalue:str})
         })
     }
 
     onSelect=(value)=>{//此处的value为用户最后从联想栏中选择的内容
         // console.log('onSelect', value);
         this.setState({nowSeach:value})
+    }
+
+    onSeach=()=>{
         axios({
             //请求方法
             method:'POST',
             url:'/query',
             //请求体参数
             data:{
-                query:value,
+                query:this.state.nowSeach,
                 pageNum:1,
                 pageSize:this.state.pagesize,
             }
@@ -58,6 +55,7 @@ export default class Seach extends Component {
                 // console.log(result.total/pageSize)
                 this.setState({pages:result.total/pagesize})
             }else{
+                this.setState({pagemod:result.total%pagesize})
                 this.setState({pages:(result.total-result.total%pagesize)/pagesize+1})
             }
             // console.log(this.state.pages)
@@ -92,15 +90,30 @@ export default class Seach extends Component {
             const {merchants}=response.data.result
             // console.log(this.state.pages)
             let returnArr=[],urls=[]
-            for(let i=0;i<this.state.pagesize;i++){
-                let str=""
-                let obj=merchants[i]
-                urls.push(obj.frontImg)
-                str+=obj.title+'\n'
-                str+="区位"+obj.district+'\n'
-                str+="大众评分"+obj.avgScore+'\n'
-                str+="人均消费"+obj.avgPrice+'\n'
-                returnArr.push(str)
+            if(this.state.pagemod!==0&&Num===this.state.pages){
+                this.setState({needmod:true})
+                for(let i=0;i<this.state.pagemod;i++){
+                    let str=""
+                    let obj=merchants[i]
+                    urls.push(obj.frontImg)
+                    str+=obj.title+'\n'
+                    str+="区位"+obj.district+'\n'
+                    str+="大众评分"+obj.avgScore+'\n'
+                    str+="人均消费"+obj.avgPrice+'\n'
+                    returnArr.push(str)
+                }
+            }else{
+                this.setState({needmod:false})
+                for(let i=0;i<this.state.pagesize;i++){
+                    let str=""
+                    let obj=merchants[i]
+                    urls.push(obj.frontImg)
+                    str+=obj.title+'\n'
+                    str+="区位"+obj.district+'\n'
+                    str+="大众评分"+obj.avgScore+'\n'
+                    str+="人均消费"+obj.avgPrice+'\n'
+                    returnArr.push(str)
+                }
             }
             this.setState({urls})
             this.setState({textvalue:returnArr})
@@ -110,14 +123,26 @@ export default class Seach extends Component {
   render() {
     const {dataSource}=this.state
     var items=[]
-    for(let i=0;i<this.state.pagesize;i++){
-        items.push(
-            <div>
-                <TextArea placeholder="" autoSize value={this.state.textvalue[i]} style={{ width: '80%' }} />
-                <img src={this.state.urls[i]} alt="picture" height={119.6} />
-            </div>
-        )
+    if(this.state.needmod){
+        for(let i=0;i<this.state.pagemod;i++){
+            items.push(
+                <div>
+                    <TextArea placeholder="" autoSize value={this.state.textvalue[i]} style={{ width: '80%' }} />
+                    <img src={this.state.urls[i]} alt="pic" height={119.6} />
+                </div>
+            )
+        }
+    }else{
+        for(let i=0;i<this.state.pagesize;i++){
+            items.push(
+                <div>
+                    <TextArea placeholder="" autoSize value={this.state.textvalue[i]} style={{ width: '80%' }} />
+                    <img src={this.state.urls[i]} alt="pic" height={119.6} />
+                </div>
+            )
+        }
     }
+    
     return (
       <div>
         <AutoComplete
@@ -128,6 +153,7 @@ export default class Seach extends Component {
           onChange={this.handleChange}
           placeholder="input here"
         />
+        <Button type="primary" onClick={this.onSeach} >搜索</Button>
         {/* <Search
         placeholder="input search text"
         enterButton="Search"
