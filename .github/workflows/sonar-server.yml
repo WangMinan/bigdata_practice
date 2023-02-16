@@ -1,4 +1,4 @@
-name: Sonarqube Check
+name: Sonarqube Server Check
 on:
   push:
     branches:
