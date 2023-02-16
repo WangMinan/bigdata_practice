@@ -1,16 +1,29 @@
 import React, { Component } from 'react'
 import * as ECharts  from 'echarts'
+import axios from 'axios';
 
 export default class Bar extends Component {
 
     componentDidMount(){
-        const {name,gname,xDataArr,yDataArr}=this.props
-        // console.log(document.getElementById(name))
+        const {name,gname}=this.props
+        let yDataArr=[],xDataArr=[]
+        axios.defaults.baseURL='https://meituan.wangminan.me'//设定baseURL
+        axios.get('/district/avgPrice',{
+
+        }).then(value=>{
+        let yData=Object.values(value.data.result)
+        let xData=Object.keys(value.data.result)
         // console.log(xDataArr)
-        // console.log(this.props.gname)
+        for(let i=0;i<xData.length;i++){
+            xDataArr.push(xData[i])
+        }
+        for(let i=0;i<yData.length;i++){
+            yDataArr.push(yData[i])
+        }
         var mcharts=ECharts.init(document.getElementById(name))
         var option={
             title:{
+                x:'center',
                 text:gname,
                 textStyle:{
                     color:'red'
@@ -43,6 +56,7 @@ export default class Bar extends Component {
             ]
         }
         mcharts.setOption(option)
+        })
     }
     
   render() {
