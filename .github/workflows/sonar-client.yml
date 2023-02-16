@@ -1,0 +1,22 @@
+name: Sonarqube Client Check
+on:
+  push:
+    branches:
+      - main # or the name of your main branch
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get Into Folder
+        run: cd ./food
+
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_CLIENT_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
