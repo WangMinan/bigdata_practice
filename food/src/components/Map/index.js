@@ -8,6 +8,7 @@ export default class Map extends Component {
 
   state={shopData:null,commentData:null,use:1,mcharts:null,tex:"按商户数量"}
     componentDidMount(){
+      const {changePie}=this.props
       let shopData=[],commentData=[]
       axios.defaults.baseURL='https://meituan.wangminan.me'//设定baseURL
       axios.get('/district/merchantNumber',{
@@ -60,6 +61,9 @@ export default class Map extends Component {
           }
       }
       mcharts.setOption(option)
+      mcharts.on('click',function(params){
+        changePie(params.data.name)
+      })
     }
 
     componentDidUpdate(){
