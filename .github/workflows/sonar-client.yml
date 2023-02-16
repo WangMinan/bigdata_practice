@@ -11,12 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-
-      - name: Get Into Folder
-        run: cd ./food
+          fetch-depth: 0      
 
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_CLIENT_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
+        run: cd ./food
