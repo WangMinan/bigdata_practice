@@ -8,7 +8,7 @@ const { TextArea } = Input;
 
 const clas=["全部（不启用筛选）","代金券","蛋糕甜点","火锅","自助餐","小吃快餐","日韩料理","西餐","聚餐宴请","烧烤烤肉","东北菜","川湘菜","江浙菜","香锅烤鱼","粤菜","中式烧烤_烤串","西北菜","咖啡酒吧","京菜鲁菜","云贵菜","东南亚菜","海鲜","素食","台湾_客家菜","创意菜","汤_粥_炖菜","蒙餐","新疆菜","其他美食"]
 export default class Seach extends Component {
-    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null,pagemod:0,needmod:false,classchack:null,reutrned:false,pageHeight:163.6,subtitles:[[<option>--请先选择区划--</option>]],leftsub:[],rightuse:0,busD:null,bds:[]}
+    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null,pagemod:0,needmod:false,classchack:null,reutrned:false,pageHeight:163.6,subtitles:[[<option>--请先选择区划--</option>]],leftsub:[],rightuse:0,busD:null,bds:[],empty:false}
     componentDidMount(){
         axios.defaults.baseURL='https://meituan.wangminan.me'
         axios({
@@ -92,30 +92,36 @@ export default class Seach extends Component {
             const {merchants}=response.data.result
             // console.log(result.total)
             // console.log(pagesize)
-            if(result.total%pagesize===0){//计算页码
-                // console.log(result.total/pageSize)
-                this.setState({pages:result.total/pagesize})
+            if(result.total===0){
+                this.setState({empty:true})
             }else{
-                this.setState({pagemod:result.total%pagesize})
-                this.setState({pages:(result.total-result.total%pagesize)/pagesize+1})
+                this.setState({empty:false})
+                if(result.total%pagesize===0){//计算页码
+                    // console.log(result.total/pageSize)
+                    this.setState({pages:result.total/pagesize})
+                }else{
+                    this.setState({pagemod:result.total%pagesize})
+                    this.setState({pages:(result.total-result.total%pagesize)/pagesize+1})
+                }
+                // console.log(this.state.pages)
+                let returnArr=[],urls=[]
+                for(let i=0;i<this.state.pagesize;i++){
+                    let str=""
+                    let obj=merchants[i]
+                    urls.push(obj.frontImg)
+                    str+=obj.title+'\n'
+                    str+="区位:"+obj.district+'\n'
+                    str+="商圈:"+obj.businessDistrict+'\n'
+                    str+="大众评分:"+obj.avgScore+'\n'
+                    str+="评论数:"+obj.allCommentNum+'\n'
+                    str+="人均消费:"+obj.avgPrice+'\n'
+                    returnArr.push(str)
+                }
+                this.setState({urls})
+                this.setState({textvalue:returnArr})
+                this.setState({reutrned:true})
             }
-            // console.log(this.state.pages)
-            let returnArr=[],urls=[]
-            for(let i=0;i<this.state.pagesize;i++){
-                let str=""
-                let obj=merchants[i]
-                urls.push(obj.frontImg)
-                str+=obj.title+'\n'
-                str+="区位:"+obj.district+'\n'
-                str+="商圈:"+obj.businessDistrict+'\n'
-                str+="大众评分:"+obj.avgScore+'\n'
-                str+="评论数:"+obj.allCommentNum+'\n'
-                str+="人均消费:"+obj.avgPrice+'\n'
-                returnArr.push(str)
-            }
-            this.setState({urls})
-            this.setState({textvalue:returnArr})
-            this.setState({reutrned:true})
+            
         })
     }
 
@@ -193,7 +199,7 @@ export default class Seach extends Component {
             let bu=arr[selectedIndex-1]
             this.setState({busD:bu})
         }
-        console.log(this.state.busD)
+        // console.log(this.state.busD)
     }
 
   render() {
@@ -224,71 +230,88 @@ export default class Seach extends Component {
     for(let i=0;i<clas.length;i++){
         radioitem.push(<Radio.Button value={i}>{clas[i]}</Radio.Button>)
     }
-    if(this.state.reutrned){
+    if(this.state.empty){
         return (
-        <div>
-            <select id='left' onChange={this.onMenuChange} >
-                {this.state.leftsub}
-            </select>
-            <select id='right' onChange={this.onMenuChange1} >
-                {this.state.subtitles[this.state.rightuse]}
-            </select>
-            <Radio.Group defaultValue="0" buttonStyle="solid" onChange={this.onClassChange} >
-                {radioitem}
-            </Radio.Group>
-            <AutoComplete
-            dataSource={dataSource}
-            style={{ width: '80%' }}
-            onSelect={this.onSelect}
-            onSearch={this.onSearch}
-            onChange={this.handleChange}
-            placeholder="input here"
-            />
-            <Button type="primary" onClick={this.onSeach} >搜索</Button>
-            {/* <Search
-            placeholder="input search text"
-            enterButton="Search"
-            size="large"
-            onSearch={value => console.log(value)}
-            onChange={this.handleChange}
-            /> */}
-            {items}
-            <Pagination defaultCurrent={1} total={this.state.pages*10} onChange={this.handlePageChange} showSizeChanger={false} />
-        </div>
+            <div>
+                <select id='left' onChange={this.onMenuChange} >
+                    {this.state.leftsub}
+                </select>
+                <select id='right' onChange={this.onMenuChange1} >
+                    {this.state.subtitles[this.state.rightuse]}
+                </select>
+                <Radio.Group defaultValue="0" buttonStyle="solid" onChange={this.onClassChange} >
+                    {radioitem}
+                </Radio.Group>
+                <AutoComplete
+                dataSource={dataSource}
+                style={{ width: '80%' }}
+                onSelect={this.onSelect}
+                onSearch={this.onSearch}
+                onChange={this.handleChange}
+                placeholder="input here"
+                />
+                <Button type="primary" onClick={this.onSeach} >搜索</Button>
+                <p>抱歉，该地区没有符合条件的商家，请换组搜索条件试试吧</p>
+            </div>
         )
     }else{
-        return(
-        <div>
-            <select id='left' onChange={this.onMenuChange} >
-                {this.state.leftsub}
-            </select>
-            <select id='right' onChange={this.onMenuChange1} >
-                {this.state.subtitles[this.state.rightuse]}
-            </select>
-            <Radio.Group defaultValue="" buttonStyle="solid" onChange={this.onClassChange} >
-                {radioitem}
-            </Radio.Group>
-            <AutoComplete
-            dataSource={dataSource}
-            style={{ width: '80%' }}
-            onSelect={this.onSelect}
-            onSearch={this.onSearch}
-            onChange={this.handleChange}
-            placeholder="input here"
-            />
-            <Button type="primary" onClick={this.onSeach} >搜索</Button>
-            {/* <Search
-            placeholder="input search text"
-            enterButton="Search"
-            size="large"
-            onSearch={value => console.log(value)}
-            onChange={this.handleChange}
-            /> */}
-            <Pagination defaultCurrent={1} total={this.state.pages*10} onChange={this.handlePageChange} showSizeChanger={false} />
-        </div>
-        )
-        
+        if(this.state.reutrned){
+            return (
+            <div>
+                <select id='left' onChange={this.onMenuChange} >
+                    {this.state.leftsub}
+                </select>
+                <select id='right' onChange={this.onMenuChange1} >
+                    {this.state.subtitles[this.state.rightuse]}
+                </select>
+                <Radio.Group defaultValue="0" buttonStyle="solid" onChange={this.onClassChange} >
+                    {radioitem}
+                </Radio.Group>
+                <AutoComplete
+                dataSource={dataSource}
+                style={{ width: '80%' }}
+                onSelect={this.onSelect}
+                onSearch={this.onSearch}
+                onChange={this.handleChange}
+                placeholder="input here"
+                />
+                <Button type="primary" onClick={this.onSeach} >搜索</Button>
+                {items}
+                <Pagination defaultCurrent={1} total={this.state.pages*10} onChange={this.handlePageChange} showSizeChanger={false} />
+            </div>
+            )
+        }else{
+            return(
+            <div>
+                <select id='left' onChange={this.onMenuChange} >
+                    {this.state.leftsub}
+                </select>
+                <select id='right' onChange={this.onMenuChange1} >
+                    {this.state.subtitles[this.state.rightuse]}
+                </select>
+                <Radio.Group defaultValue="" buttonStyle="solid" onChange={this.onClassChange} >
+                    {radioitem}
+                </Radio.Group>
+                <AutoComplete
+                dataSource={dataSource}
+                style={{ width: '80%' }}
+                onSelect={this.onSelect}
+                onSearch={this.onSearch}
+                onChange={this.handleChange}
+                placeholder="input here"
+                />
+                <Button type="primary" onClick={this.onSeach} >搜索</Button>
+                {/* <Search
+                placeholder="input search text"
+                enterButton="Search"
+                size="large"
+                onSearch={value => console.log(value)}
+                onChange={this.handleChange}
+                /> */}
+                <Pagination defaultCurrent={1} total={this.state.pages*10} onChange={this.handlePageChange} showSizeChanger={false} />
+            </div>
+            )
+        }
     }
-    
   }
 }

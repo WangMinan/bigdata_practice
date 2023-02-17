@@ -16,7 +16,7 @@ export default class Header extends Component {
                 <Navbar.Brand>
                     {/* src指定图片路径 width和height指定宽高 */}
                     <img src="./icons/鸡腿.png" alt="none" width={30} height={30} />{' '}
-                    西安食品
+                    西安餐饮
                 </Navbar.Brand>
                 <Button type="primary" onClick={this.change} >转到{this.props.text}</Button>
             </Container>
