@@ -1,4 +1,3 @@
-// import logo from './logo.svg';
 import Header from './components/Header';
 import Map from './components/Map';
 import Bar from './components/Bar';
@@ -9,7 +8,6 @@ import Bar3 from './components/Bar3';
 import Seach from './components/Seach';
 import Locasuggest from './components/Locasuggest';
 import 'bootstrap/dist/css/bootstrap.min.css'
-// import axios from 'axios';
 import { Component } from 'react';
 import { Card } from 'antd';
 const gridStyle = {

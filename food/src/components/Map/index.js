@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import * as ECharts  from 'echarts'
-// import EChartsReact from 'echarts-for-react'
 import ret from '../../json/map/西安市.json'
 import axios from 'axios'
 import './index.css'

@@ -13,8 +13,6 @@ export default class Locasuggest extends Component {
             navigator.geolocation.getCurrentPosition((position)=>{
                 var longitude=position.coords.longitude//经度
                 var latitude=position.coords.latitude//纬度
-                // console.log(longitude)
-                // console.log(latitude)
                 this.setState({longitude})
                 this.setState({latitude})
             })

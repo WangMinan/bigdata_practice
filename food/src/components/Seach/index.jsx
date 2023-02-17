@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios';
-import { Input } from 'antd';
-import { AutoComplete,Pagination,Button,Radio } from 'antd'
+import { Input,AutoComplete,Pagination,Button,Radio } from 'antd'
 
-// const { Search } = Input;
 const { TextArea } = Input;
 
 const clas=["全部（不启用筛选）","代金券","蛋糕甜点","火锅","自助餐","小吃快餐","日韩料理","西餐","聚餐宴请","烧烤烤肉","东北菜","川湘菜","江浙菜","香锅烤鱼","粤菜","中式烧烤_烤串","西北菜","咖啡酒吧","京菜鲁菜","云贵菜","东南亚菜","海鲜","素食","台湾_客家菜","创意菜","汤_粥_炖菜","蒙餐","新疆菜","其他美食"]
@@ -48,7 +46,6 @@ export default class Seach extends Component {
     }
 
     handleChange=(e)=>{//输入联想
-        // console.log(e)
         let datas=["加载中..."]
         this.setState({dataSource:datas})
         axios.defaults.baseURL='https://meituan.wangminan.me'
@@ -62,14 +59,12 @@ export default class Seach extends Component {
                 keyword:e
             }
         }).then(response=>{
-            // console.log(response.data.result)
             const {result}=response.data
             this.setState({dataSource:result})
         })
     }
 
     onSelect=(value)=>{//此处的value为用户最后从联想栏中选择的内容
-        // console.log('onSelect', value);
         this.setState({nowSeach:value})
     }
 
@@ -90,20 +85,16 @@ export default class Seach extends Component {
             const {pagesize}=this.state
             const {result}=response.data
             const {merchants}=response.data.result
-            // console.log(result.total)
-            // console.log(pagesize)
             if(result.total===0){
                 this.setState({empty:true})
             }else{
                 this.setState({empty:false})
                 if(result.total%pagesize===0){//计算页码
-                    // console.log(result.total/pageSize)
                     this.setState({pages:result.total/pagesize})
                 }else{
                     this.setState({pagemod:result.total%pagesize})
                     this.setState({pages:(result.total-result.total%pagesize)/pagesize+1})
                 }
-                // console.log(this.state.pages)
                 let returnArr=[],urls=[]
                 for(let i=0;i<this.state.pagesize;i++){
                     let str=""
@@ -140,7 +131,6 @@ export default class Seach extends Component {
             }
         }).then(response=>{
             const {merchants}=response.data.result
-            // console.log(this.state.pages)
             let returnArr=[],urls=[]
             if(this.state.pagemod!==0&&Num===this.state.pages){
                 this.setState({needmod:true})
@@ -177,7 +167,6 @@ export default class Seach extends Component {
     }
 
     onClassChange=(e)=>{
-        // console.log(e.target.value)
         if(e.target.value===0){
             this.setState({classchack:null})
         }else{
@@ -186,7 +175,6 @@ export default class Seach extends Component {
     }
 
     onMenuChange=(e)=>{
-        // console.log(e.target.selectedIndex)
         this.setState({rightuse:e.target.selectedIndex})
     }
 
@@ -199,7 +187,6 @@ export default class Seach extends Component {
             let bu=arr[selectedIndex-1]
             this.setState({busD:bu})
         }
-        // console.log(this.state.busD)
     }
 
   render() {
