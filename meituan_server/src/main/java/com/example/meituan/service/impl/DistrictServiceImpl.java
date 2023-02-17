@@ -180,9 +180,9 @@ public class DistrictServiceImpl implements DistrictService {
                 """;
         String dis = "临潼区,周至县,新城区,未央区,灞桥区,碑林区,莲湖区,蓝田县,鄠邑区,长安区,阎良区,雁塔区,高新区,高陵区";
         String[] districts = dis.split(",");
-        String[] BusinessDistricts = text.split(":");
+        String[] bus = text.split(":");
         for (int i=0;i<districts.length-1;i++) {
-            List<String> list = Arrays.asList(BusinessDistricts[i].replaceAll("\n","").split(","));
+            List<String> list = Arrays.asList(bus[i].replace("\n","").split(","));
             result.put(districts[i],list);
         }
         return R.ok().put(RESULT,result);
