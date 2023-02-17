@@ -159,8 +159,9 @@ public class DistrictServiceImpl implements DistrictService {
 
     @Override
     public R getDistrictMap() {
+
         Map<String, List<String>> result = new HashMap<>();
-        String BusinessDis
+        String text
                 = """
                 东三岔,人民路_文化路,兵马俑,华清宫,华清池,芷阳湖:
                 周至县中心城区,周至汽车站,武商购物广场,沙河村:
@@ -177,9 +178,9 @@ public class DistrictServiceImpl implements DistrictService {
                 丈八,光华路,唐延路南段,唐延路沿线,太白南路沿线,枫林绿洲,玫瑰大楼,电子城,科技路沿线,科技路西口,绿地世纪城,西万路口,高新路沿线,高新软件园:
                 车城花园,马家湾,高陵县城
                 """;
-        String Dis = "临潼区,周至县,新城区,未央区,灞桥区,碑林区,莲湖区,蓝田县,鄠邑区,长安区,阎良区,雁塔区,高新区,高陵区";
-        String[] districts = Dis.split(",");
-        String[] BusinessDistricts = BusinessDis.split(":");
+        String dis = "临潼区,周至县,新城区,未央区,灞桥区,碑林区,莲湖区,蓝田县,鄠邑区,长安区,阎良区,雁塔区,高新区,高陵区";
+        String[] districts = dis.split(",");
+        String[] BusinessDistricts = text.split(":");
         for (int i=0;i<districts.length-1;i++) {
             List<String> list = Arrays.asList(BusinessDistricts[i].replaceAll("\n","").split(","));
             result.put(districts[i],list);
