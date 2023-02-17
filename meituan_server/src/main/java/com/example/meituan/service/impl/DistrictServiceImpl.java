@@ -44,7 +44,7 @@ public class DistrictServiceImpl implements DistrictService {
                         DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations);
         return R.ok().put(RESULT, aggByDistrict);
     }
 
@@ -60,7 +60,7 @@ public class DistrictServiceImpl implements DistrictService {
                         DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations);
         Map<String, Integer> result = new HashMap<>();
         for (Map.Entry<String, Integer> entry : aggByDistrict.entrySet()) {
             String district = entry.getKey();
@@ -96,7 +96,7 @@ public class DistrictServiceImpl implements DistrictService {
                         DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations);
         List<Map<String, Object>> result = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : aggByDistrict.entrySet()) {
             String district = entry.getKey();
@@ -108,7 +108,7 @@ public class DistrictServiceImpl implements DistrictService {
                             "MerchantTypeAggression", "category");
             Map<String, Object> map = new HashMap<>();
             map.put(district,
-                    getCategoryCount(searchResponse.getAggregations(), "MerchantTypeAggression"));
+                    getCategoryCount(searchResponse.getAggregations()));
             result.add(map);
         }
         return R.ok().put(RESULT, result);
@@ -129,7 +129,7 @@ public class DistrictServiceImpl implements DistrictService {
                 getSearchResponse(queryBuilder, DISTRICT_AGGREGATION_NAME, DISTRICT_FIELD_NAME);
         // 解析聚合结果
         Aggregations aggregations = response.getAggregations();
-        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations, DISTRICT_AGGREGATION_NAME);
+        Map<String, Integer> aggByDistrict = getDistrictDtoCount(aggregations);
         Map<String, Long> avgPriceMap = new HashMap<>();
         for (Map.Entry<String, Integer> entry : aggByDistrict.entrySet()) {
             String district = entry.getKey();
@@ -161,7 +161,7 @@ public class DistrictServiceImpl implements DistrictService {
     public R getDistrictMap() {
         Map<String, List<String>> result = new HashMap<>();
         String BusinessDis
-                = """                
+                = """
                 东三岔,人民路_文化路,兵马俑,华清宫,华清池,芷阳湖:
                 周至县中心城区,周至汽车站,武商购物广场,沙河村:
                 万寿路,幸福路沿线,康复路,新城广场,民乐园,立丰国际,胡家庙,解放路_火车站,韩森寨:
@@ -175,7 +175,7 @@ public class DistrictServiceImpl implements DistrictService {
                 凤凰广场,前进路,千禧广场,润天大道,蓝天广场:
                 三森,南二环东段,南二环西段,吉祥村,含光路南段,大寨路,大雁塔,太白立交,小寨,徐家庄,明德门,曲江新区,朱雀大街南段,杨家村,电视台_会展中心,翠华路,西影路,长安路,雁翔路:
                 丈八,光华路,唐延路南段,唐延路沿线,太白南路沿线,枫林绿洲,玫瑰大楼,电子城,科技路沿线,科技路西口,绿地世纪城,西万路口,高新路沿线,高新软件园:
-                车城花园,马家湾,高陵县城         
+                车城花园,马家湾,高陵县城
                 """;
         String Dis = "临潼区,周至县,新城区,未央区,灞桥区,碑林区,莲湖区,蓝田县,鄠邑区,长安区,阎良区,雁塔区,高新区,高陵区";
         String[] districts = Dis.split(",");
@@ -205,9 +205,9 @@ public class DistrictServiceImpl implements DistrictService {
         }
     }
 
-    private Map<String, Integer> getDistrictDtoCount(Aggregations aggregations, String aggName) {
+    private Map<String, Integer> getDistrictDtoCount(Aggregations aggregations) {
         // 4.1.根据聚合名称获取聚合结果
-        Terms brandTerms = aggregations.get(aggName);
+        Terms brandTerms = aggregations.get(DistrictServiceImpl.DISTRICT_AGGREGATION_NAME);
         // 4.2.获取buckets
         List<? extends Terms.Bucket> buckets = brandTerms.getBuckets();
         // 4.3.遍历
@@ -221,9 +221,9 @@ public class DistrictServiceImpl implements DistrictService {
         return map;
     }
 
-    private Map<String, Integer> getCategoryCount(Aggregations aggregations, String aggName) {
+    private Map<String, Integer> getCategoryCount(Aggregations aggregations) {
         // 4.1.根据聚合名称获取聚合结果
-        Terms brandTerms = aggregations.get(aggName);
+        Terms brandTerms = aggregations.get("MerchantTypeAggression");
         // 4.2.获取buckets
         List<? extends Terms.Bucket> buckets = brandTerms.getBuckets();
         // 4.3.遍历
