@@ -57,7 +57,7 @@ class App extends Component {
         <div className="App">
           <Header changePage={this.changePage} text={this.state.text1} />
           <Seach/>
-          <Card title="Card Title">
+          <Card title="餐饮数据统计图">
             <Card.Grid hoverable={false} style={gridStyle}>
               <Map changePie={this.changePie} />
             </Card.Grid>
