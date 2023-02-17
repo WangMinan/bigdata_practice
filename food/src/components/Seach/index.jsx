@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import axios from 'axios';
 import { Input } from 'antd';
 import { AutoComplete,Pagination,Button,Radio } from 'antd'
-import { Menu, Dropdown } from 'antd'
-import { Icon } from '@ant-design/compatible'
+import { DownOutlined } from '@ant-design/icons';
+// import { MenuProps } from 'antd';
+import { Dropdown, Space } from 'antd';
 
 // const { Search } = Input;
 const { TextArea } = Input;
-const { SubMenu } = Menu;
 
 const clas=["全部（不启用筛选）","代金券","蛋糕甜点","火锅","自助餐","小吃快餐","日韩料理","西餐","聚餐宴请","烧烤烤肉","东北菜","川湘菜","江浙菜","香锅烤鱼","粤菜","中式烧烤_烤串","西北菜","咖啡酒吧","京菜鲁菜","云贵菜","东南亚菜","海鲜","素食","台湾_客家菜","创意菜","汤_粥_炖菜","蒙餐","新疆菜","其他美食"]
 export default class Seach extends Component {
@@ -25,19 +25,18 @@ export default class Seach extends Component {
             let tmp=Object.keys(result)
             let tmpp=Object.values(result)
             for(let i=0;i<tmp.length;i++){
-                let itemss=[]
                 let tpmenu=tmpp[i]
-                // console.log(tmpp[i])
+                let menuitem={}
+                menuitem.key=i
+                menuitem.label=tmp[i]
+                menuitem.children=[]
                 for(let j=0;j<tpmenu.length;j++){
-                    itemss.push(<Menu.Item>{tpmenu[j]}</Menu.Item>)
+                    let inneritem={key:i+'.'+j,label:tpmenu[j]}
+                    menuitem.children.push(inneritem)
                 }
-                subtitles.push(
-                    <SubMenu title={tmp[i]}>
-                        {itemss}
-                    </SubMenu>
-                )
+                subtitles.push(menuitem)
             }
-            this.setState({subtitles:(<div>{subtitles}</div>)})
+            this.setState(subtitles)
         })
     }
 
@@ -202,12 +201,13 @@ export default class Seach extends Component {
     if(this.state.reutrned){
         return (
         <div>
-            <Dropdown menu={this.state.subtitles} fallback={<h2>loading</h2>} >
-                <div>
-                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-                    Cascading menu <Icon type="down" />
-                    </a>
-                </div>
+            <Dropdown menu={ this.state.subtitles }>
+                <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                    选择分区
+                    <DownOutlined />
+                </Space>
+                </a>
             </Dropdown>
             <Radio.Group defaultValue="0" buttonStyle="solid" onChange={this.onClassChange} >
                 {radioitem}
@@ -235,12 +235,13 @@ export default class Seach extends Component {
     }else{
         return(
         <div>
-            <Dropdown menu={this.state.subtitles} fallback={<h2>loading</h2>} >
-                <div>
-                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-                    Cascading menu <Icon type="down" />
-                    </a>
-                </div>
+            <Dropdown menu={ this.state.subtitles }>
+                <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                    选择分区
+                    <DownOutlined />
+                </Space>
+                </a>
             </Dropdown>
             <Radio.Group defaultValue="" buttonStyle="solid" onChange={this.onClassChange} >
                 {radioitem}
