@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 **/test/java/com/example/meituan/**
+.scannerwork/
 
 ### STS ###
 .apt_generated
