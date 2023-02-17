@@ -6,7 +6,7 @@ const { Search } = Input;
 const { TextArea } = Input;
 
 export default class Locasuggest extends Component {
-    state={longitude:null,latitude:null,urls:[],textvalue:[],returned:false}
+    state={longitude:null,latitude:null,urls:[],textvalue:[],returned:false,pageHeight:163.6}
 
     componentDidMount(){
         if(navigator.geolocation){
@@ -45,9 +45,11 @@ export default class Locasuggest extends Component {
                 let obj=result[i]
                 urls.push(obj.frontImg)
                 str+=obj.title+'\n'
-                str+="区位"+obj.district+'\n'
-                str+="大众评分"+obj.avgScore+'\n'
-                str+="人均消费"+obj.avgPrice+'\n'
+                str+="区位:"+obj.district+'\n'
+                str+="商圈:"+obj.businessDistrict+'\n'
+                str+="大众评分:"+obj.avgScore+'\n'
+                str+="评论数:"+obj.allCommentNum+'\n'
+                str+="人均消费:"+obj.avgPrice+'\n'
                 returnArr.push(str)
             }
             this.setState({urls})
@@ -62,7 +64,7 @@ export default class Locasuggest extends Component {
         items.push(
             <div>
                 <TextArea placeholder="" autoSize value={this.state.textvalue[i]} style={{ width: '80%' }} />
-                <img src={this.state.urls[i]} alt="pic" height={119.6} />
+                <img src={this.state.urls[i]} alt="pic" height={this.state.pageHeight} />
             </div>
         )
     }

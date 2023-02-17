@@ -2,13 +2,45 @@ import React, { Component } from 'react'
 import axios from 'axios';
 import { Input } from 'antd';
 import { AutoComplete,Pagination,Button,Radio } from 'antd'
+import { Menu, Dropdown } from 'antd'
+import { Icon } from '@ant-design/compatible'
 
 // const { Search } = Input;
 const { TextArea } = Input;
+const { SubMenu } = Menu;
 
-const clas=["代金券","蛋糕甜点","火锅","自助餐","小吃快餐","日韩料理","西餐","聚餐宴请","烧烤烤肉","东北菜","川湘菜","江浙菜","香锅烤鱼","粤菜","中式烧烤_烤串","西北菜","咖啡酒吧","京菜鲁菜","云贵菜","东南亚菜","海鲜","素食","台湾_客家菜","创意菜","汤_粥_炖菜","蒙餐","新疆菜","其他美食"]
+const clas=["全部（不启用筛选）","代金券","蛋糕甜点","火锅","自助餐","小吃快餐","日韩料理","西餐","聚餐宴请","烧烤烤肉","东北菜","川湘菜","江浙菜","香锅烤鱼","粤菜","中式烧烤_烤串","西北菜","咖啡酒吧","京菜鲁菜","云贵菜","东南亚菜","海鲜","素食","台湾_客家菜","创意菜","汤_粥_炖菜","蒙餐","新疆菜","其他美食"]
 export default class Seach extends Component {
-    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null,pagemod:0,needmod:false,classchack:null,reutrned:false}
+    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null,pagemod:0,needmod:false,classchack:null,reutrned:false,pageHeight:163.6,subtitles:null}
+    componentDidMount(){
+        axios.defaults.baseURL='https://meituan.wangminan.me'
+        axios({
+            //请求方法
+            method:'GET',
+            url:'/district/list',
+        }).then(response=>{
+            const {result}=response.data
+            // console.log(response.data.result)
+            let subtitles=[]
+            let tmp=Object.keys(result)
+            let tmpp=Object.values(result)
+            for(let i=0;i<tmp.length;i++){
+                let itemss=[]
+                let tpmenu=tmpp[i]
+                // console.log(tmpp[i])
+                for(let j=0;j<tpmenu.length;j++){
+                    itemss.push(<Menu.Item>{tpmenu[j]}</Menu.Item>)
+                }
+                subtitles.push(
+                    <SubMenu title={tmp[i]}>
+                        {itemss}
+                    </SubMenu>
+                )
+            }
+            this.setState({subtitles:(<div>{subtitles}</div>)})
+        })
+    }
+
     handleChange=(e)=>{//输入联想
         // console.log(e)
         let datas=["加载中..."]
@@ -35,7 +67,7 @@ export default class Seach extends Component {
         this.setState({nowSeach:value})
     }
 
-    onSeach=()=>{
+    onSeach=()=>{//初次搜索
         axios({
             //请求方法
             method:'POST',
@@ -67,9 +99,11 @@ export default class Seach extends Component {
                 let obj=merchants[i]
                 urls.push(obj.frontImg)
                 str+=obj.title+'\n'
-                str+="区位"+obj.district+'\n'
-                str+="大众评分"+obj.avgScore+'\n'
-                str+="人均消费"+obj.avgPrice+'\n'
+                str+="区位:"+obj.district+'\n'
+                str+="商圈:"+obj.businessDistrict+'\n'
+                str+="大众评分:"+obj.avgScore+'\n'
+                str+="评论数:"+obj.allCommentNum+'\n'
+                str+="人均消费:"+obj.avgPrice+'\n'
                 returnArr.push(str)
             }
             this.setState({urls})
@@ -78,7 +112,7 @@ export default class Seach extends Component {
         })
     }
 
-    handlePageChange=(Num)=>{
+    handlePageChange=(Num)=>{//翻页
         axios({
             //请求方法
             method:'POST',
@@ -101,9 +135,11 @@ export default class Seach extends Component {
                     let obj=merchants[i]
                     urls.push(obj.frontImg)
                     str+=obj.title+'\n'
-                    str+="区位"+obj.district+'\n'
-                    str+="大众评分"+obj.avgScore+'\n'
-                    str+="人均消费"+obj.avgPrice+'\n'
+                    str+="区位:"+obj.district+'\n'
+                    str+="商圈:"+obj.businessDistrict+'\n'
+                    str+="大众评分:"+obj.avgScore+'\n'
+                    str+="评论数:"+obj.allCommentNum+'\n'
+                    str+="人均消费:"+obj.avgPrice+'\n'
                     returnArr.push(str)
                 }
             }else{
@@ -113,9 +149,11 @@ export default class Seach extends Component {
                     let obj=merchants[i]
                     urls.push(obj.frontImg)
                     str+=obj.title+'\n'
-                    str+="区位"+obj.district+'\n'
-                    str+="大众评分"+obj.avgScore+'\n'
-                    str+="人均消费"+obj.avgPrice+'\n'
+                    str+="区位:"+obj.district+'\n'
+                    str+="商圈:"+obj.businessDistrict+'\n'
+                    str+="大众评分:"+obj.avgScore+'\n'
+                    str+="评论数:"+obj.allCommentNum+'\n'
+                    str+="人均消费:"+obj.avgPrice+'\n'
                     returnArr.push(str)
                 }
             }
@@ -126,7 +164,11 @@ export default class Seach extends Component {
 
     onClassChange=(e)=>{
         // console.log(e.target.value)
-        this.setState({classchack:clas[e.target.value]})
+        if(e.target.value===0){
+            this.setState({classchack:null})
+        }else{
+            this.setState({classchack:clas[e.target.value]})
+        }
     }
 
   render() {
@@ -137,7 +179,7 @@ export default class Seach extends Component {
             items.push(
                 <div>
                     <TextArea placeholder="" autoSize value={this.state.textvalue[i]} style={{ width: '80%' }} />
-                    <img src={this.state.urls[i]} alt="pic" height={119.6} />
+                    <img src={this.state.urls[i]} alt="pic" height={this.state.pageHeight} />
                 </div>
             )
         }
@@ -146,7 +188,7 @@ export default class Seach extends Component {
             items.push(
                 <div>
                     <TextArea placeholder="" autoSize value={this.state.textvalue[i]} style={{ width: '80%' }} />
-                    <img src={this.state.urls[i]} alt="pic" height={119.6} />
+                    <img src={this.state.urls[i]} alt="pic" height={this.state.pageHeight} />
                 </div>
             )
         }
@@ -160,7 +202,14 @@ export default class Seach extends Component {
     if(this.state.reutrned){
         return (
         <div>
-            <Radio.Group defaultValue="" buttonStyle="solid" onChange={this.onClassChange} >
+            <Dropdown menu={this.state.subtitles} fallback={<h2>loading</h2>} >
+                <div>
+                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                    Cascading menu <Icon type="down" />
+                    </a>
+                </div>
+            </Dropdown>
+            <Radio.Group defaultValue="0" buttonStyle="solid" onChange={this.onClassChange} >
                 {radioitem}
             </Radio.Group>
             <AutoComplete
@@ -186,6 +235,13 @@ export default class Seach extends Component {
     }else{
         return(
         <div>
+            <Dropdown menu={this.state.subtitles} fallback={<h2>loading</h2>} >
+                <div>
+                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                    Cascading menu <Icon type="down" />
+                    </a>
+                </div>
+            </Dropdown>
             <Radio.Group defaultValue="" buttonStyle="solid" onChange={this.onClassChange} >
                 {radioitem}
             </Radio.Group>
