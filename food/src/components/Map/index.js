@@ -125,7 +125,7 @@ export default class Map extends Component {
     render() {
     return (
       <div style={{width:'100%'}} >
-        <div className='back' id='xian' style={{width:600,height:400,borderStyle:'solid'}} >
+        <div className='back' id='xian' style={{width:600,height:600,borderStyle:'solid'}} >
         
         </div>
         <div className='back' style={{width:100,height:30}} >

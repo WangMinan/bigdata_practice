@@ -11,7 +11,15 @@ import Locasuggest from './components/Locasuggest';
 import 'bootstrap/dist/css/bootstrap.min.css'
 // import axios from 'axios';
 import { Component } from 'react';
-
+import { Card } from 'antd';
+const gridStyle = {
+  width: '50%',
+  textAlign: 'center',
+};
+const gridStyle1 = {
+  width: '100%',
+  textAlign: 'center',
+};
 class App extends Component {
   // constructor(props){
   //   super(props)
@@ -49,17 +57,31 @@ class App extends Component {
         <div className="App">
           <Header changePage={this.changePage} text={this.state.text1} />
           <Seach/>
-          <Map changePie={this.changePie} />
-          {/* 餐饮种类占比 */}
-          <Pie name="merchart" showPie={this.state.showPie} />
-          {/* 人均价格分布表 */}
-          <Bar name="capita" gname="餐饮消费人均价格分布"/>
-          {/* 各类别餐饮店铺总数 */}
-          <Bar1 name="total" gname="各类别餐饮店铺总数" />
-          {/* 各类别餐饮店铺人均价格比较 */}
-          <Bar2 name="avgPrice" gname="各类别餐饮店铺人均价格比较" />
-          {/* 各类别餐饮店铺历史评价数量比较 */}
-          <Bar3 name="flow" gname="各类别餐饮店铺历史评价数量比较" />
+          <Card title="Card Title">
+            <Card.Grid hoverable={false} style={gridStyle}>
+              <Map changePie={this.changePie} />
+            </Card.Grid>
+            <Card.Grid hoverable={false} style={gridStyle}>
+              {/* 餐饮种类占比 */}
+              <Pie name="merchart" showPie={this.state.showPie} />
+            </Card.Grid>
+            <Card.Grid style={gridStyle}>
+              {/* 人均价格分布表 */}
+              <Bar name="capita" gname="餐饮消费人均价格分布"/>
+            </Card.Grid>
+            <Card.Grid style={gridStyle}>
+              {/* 各类别餐饮店铺总数 */}
+              <Bar1 name="total" gname="各类别餐饮店铺总数" />
+            </Card.Grid>
+            <Card.Grid style={gridStyle1}>
+              {/* 各类别餐饮店铺人均价格比较 */}
+              <Bar2 name="avgPrice" gname="各类别餐饮店铺人均价格比较" />
+            </Card.Grid>
+            <Card.Grid style={gridStyle1}>
+              {/* 各类别餐饮店铺历史评价数量比较 */}
+              <Bar3 name="flow" gname="各类别餐饮店铺历史评价数量比较" />
+            </Card.Grid>
+          </Card>
         </div>
       );
     }
