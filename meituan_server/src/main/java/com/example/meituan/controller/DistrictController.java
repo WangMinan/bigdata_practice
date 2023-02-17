@@ -50,4 +50,9 @@ public class DistrictController {
     public R getAvgPriceByDistrict(){
         return districtService.getAvgPriceByDistrict();
     }
+
+    @GetMapping("/district/list")
+    public R getDistrictMap(){
+        return districtService.getDistrictMap();
+    }
 }

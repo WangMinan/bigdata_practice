@@ -10,4 +10,6 @@ public interface DistrictService {
     R getMerchantTypeByDistrict();
 
     R getAvgPriceByDistrict();
+
+    R getDistrictMap();
 }
