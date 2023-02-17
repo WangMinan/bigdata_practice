@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
 import axios from 'axios';
 import { Input } from 'antd';
-import { AutoComplete,Pagination,Button } from 'antd'
+import { AutoComplete,Pagination,Button,Radio } from 'antd'
 
 // const { Search } = Input;
 const { TextArea } = Input;
 
+const clas=["代金券","蛋糕甜点","火锅","自助餐","小吃快餐","日韩料理","西餐","聚餐宴请","烧烤烤肉","东北菜","川湘菜","江浙菜","香锅烤鱼","粤菜","中式烧烤_烤串","西北菜","咖啡酒吧","京菜鲁菜","云贵菜","东南亚菜","海鲜","素食","台湾_客家菜","创意菜","汤_粥_炖菜","蒙餐","新疆菜","其他美食"]
 export default class Seach extends Component {
-    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null,pagemod:0,needmod:false}
-    handleChange=(e)=>{
+    state={textvalue:[],dataSource:[],pagesize:5,urls:[],pages:0,nowSeach:null,pagemod:0,needmod:false,classchack:null,reutrned:false}
+    handleChange=(e)=>{//输入联想
         // console.log(e)
         let datas=["加载中..."]
         this.setState({dataSource:datas})
@@ -44,6 +45,7 @@ export default class Seach extends Component {
                 query:this.state.nowSeach,
                 pageNum:1,
                 pageSize:this.state.pagesize,
+                type:this.state.classchack,
             }
         }).then(response=>{
             const {pagesize}=this.state
@@ -72,6 +74,7 @@ export default class Seach extends Component {
             }
             this.setState({urls})
             this.setState({textvalue:returnArr})
+            this.setState({reutrned:true})
         })
     }
 
@@ -85,6 +88,7 @@ export default class Seach extends Component {
                 query:this.state.nowSeach,
                 pageNum:Num,
                 pageSize:this.state.pagesize,
+                type:this.state.classchack,
             }
         }).then(response=>{
             const {merchants}=response.data.result
@@ -120,6 +124,11 @@ export default class Seach extends Component {
         })
     }
 
+    onClassChange=(e)=>{
+        // console.log(e.target.value)
+        this.setState({classchack:clas[e.target.value]})
+    }
+
   render() {
     const {dataSource}=this.state
     var items=[]
@@ -142,38 +151,65 @@ export default class Seach extends Component {
             )
         }
     }
+
+    //类别筛选
+    var radioitem=[]
+    for(let i=0;i<clas.length;i++){
+        radioitem.push(<Radio.Button value={i}>{clas[i]}</Radio.Button>)
+    }
+    if(this.state.reutrned){
+        return (
+        <div>
+            <Radio.Group defaultValue="" buttonStyle="solid" onChange={this.onClassChange} >
+                {radioitem}
+            </Radio.Group>
+            <AutoComplete
+            dataSource={dataSource}
+            style={{ width: '80%' }}
+            onSelect={this.onSelect}
+            onSearch={this.onSearch}
+            onChange={this.handleChange}
+            placeholder="input here"
+            />
+            <Button type="primary" onClick={this.onSeach} >搜索</Button>
+            {/* <Search
+            placeholder="input search text"
+            enterButton="Search"
+            size="large"
+            onSearch={value => console.log(value)}
+            onChange={this.handleChange}
+            /> */}
+            {items}
+            <Pagination defaultCurrent={1} total={this.state.pages*10} onChange={this.handlePageChange} showSizeChanger={false} />
+        </div>
+        )
+    }else{
+        return(
+        <div>
+            <Radio.Group defaultValue="" buttonStyle="solid" onChange={this.onClassChange} >
+                {radioitem}
+            </Radio.Group>
+            <AutoComplete
+            dataSource={dataSource}
+            style={{ width: '80%' }}
+            onSelect={this.onSelect}
+            onSearch={this.onSearch}
+            onChange={this.handleChange}
+            placeholder="input here"
+            />
+            <Button type="primary" onClick={this.onSeach} >搜索</Button>
+            {/* <Search
+            placeholder="input search text"
+            enterButton="Search"
+            size="large"
+            onSearch={value => console.log(value)}
+            onChange={this.handleChange}
+            /> */}
+            <Pagination defaultCurrent={1} total={this.state.pages*10} onChange={this.handlePageChange} showSizeChanger={false} />
+        </div>
+        )
+        
+    }
     
-    return (
-      <div>
-        <AutoComplete
-          dataSource={dataSource}
-          style={{ width: '80%' }}
-          onSelect={this.onSelect}
-          onSearch={this.onSearch}
-          onChange={this.handleChange}
-          placeholder="input here"
-        />
-        <Button type="primary" onClick={this.onSeach} >搜索</Button>
-        {/* <Search
-        placeholder="input search text"
-        enterButton="Search"
-        size="large"
-        onSearch={value => console.log(value)}
-        onChange={this.handleChange}
-        /> */}
-        {/* <TextArea placeholder="" autoSize value={this.state.textvalue[0]} style={{ width: '80%' }} />
-        <img src={this.state.urls[0]} alt="picture1" height={119.6} />
-        <TextArea placeholder="" autoSize value={this.state.textvalue[1]} style={{ width: '80%' }} />
-        <img src={this.state.urls[1]} alt="picture2" height={119.6} />
-        <TextArea placeholder="" autoSize value={this.state.textvalue[2]} style={{ width: '80%' }} />
-        <img src={this.state.urls[2]} alt="picture3" height={119.6} />
-        <TextArea placeholder="" autoSize value={this.state.textvalue[3]} style={{ width: '80%' }} />
-        <img src={this.state.urls[3]} alt="picture4" height={119.6} />
-        <TextArea placeholder="" autoSize value={this.state.textvalue[4]} style={{ width: '80%' }} />
-        <img src={this.state.urls[4]} alt="picture5" height={119.6} /> */}
-        {items}
-        <Pagination defaultCurrent={1} total={this.state.pages*10} onChange={this.handlePageChange} showSizeChanger={false} />
-      </div>
-    )
   }
 }

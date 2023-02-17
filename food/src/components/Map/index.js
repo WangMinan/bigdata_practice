@@ -3,6 +3,7 @@ import * as ECharts  from 'echarts'
 // import EChartsReact from 'echarts-for-react'
 import ret from '../../json/map/西安市.json'
 import axios from 'axios'
+import './index.css'
 
 export default class Map extends Component {
 
@@ -123,11 +124,13 @@ export default class Map extends Component {
 
     render() {
     return (
-      <div>
-        <div id='xian' style={{width:600,height:400,borderStyle:'solid'}} >
+      <div style={{width:'100%'}} >
+        <div className='back' id='xian' style={{width:600,height:400,borderStyle:'solid'}} >
         
         </div>
-        <button onClick={this.changeMap}>{this.state.tex}</button>
+        <div className='back' style={{width:100,height:30}} >
+          <button onClick={this.changeMap}>{this.state.tex}</button>
+        </div>
       </div>
       
     )

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import * as ECharts  from 'echarts'
+import './index.css'
 
 export default class Pie extends Component {
 
@@ -80,9 +81,9 @@ export default class Pie extends Component {
   render() {
     const {name,showPie}=this.props
     return (
-      <div>
-        <p>{showPie}各商户类别占比</p>
-        <div id={name} style={{width:600,height:500,position:'relative',top:'0px'}}></div>
+      <div style={{width:'100%'}}>
+        <p className='word' >{showPie}各商户类别占比</p>
+        <div className='back' id={name} style={{width:600,height:600,position:'relative',top:'0px'}}></div>
       </div>
     )
   }

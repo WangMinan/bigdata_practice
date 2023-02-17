@@ -1,7 +1,13 @@
 import React, { Component } from 'react'
 import { Navbar,Container } from 'react-bootstrap'
+import { Button } from 'antd';
 
 export default class Header extends Component {
+
+  change=()=>{
+    this.props.changePage()
+  }
+
   render() {
     return (
       <div>
@@ -12,6 +18,7 @@ export default class Header extends Component {
                     <img src="./icons/鸡腿.png" alt="none" width={30} height={30} />{' '}
                     西安食品
                 </Navbar.Brand>
+                <Button type="primary" onClick={this.change} >转到{this.props.text}</Button>
             </Container>
         </Navbar>
       </div>

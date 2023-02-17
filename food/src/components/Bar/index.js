@@ -62,8 +62,8 @@ export default class Bar extends Component {
   render() {
     const {name}=this.props
     return (
-        <div>
-            <div id={name} style={{width:600,height:400}}></div>
+        <div style={{width:'100%'}}>
+            <div className='back' id={name} style={{width:600,height:400}}></div>
         </div>
     )
   }
