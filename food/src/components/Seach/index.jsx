@@ -89,28 +89,53 @@ export default class Seach extends Component {
                 this.setState({empty:true})
             }else{
                 this.setState({empty:false})
-                if(result.total%pagesize===0){//计算页码
+                if(result.total<pagesize){
+                    this.setState({pages:1})
+                    this.setState({pagemod:result.total})
+                    this.setState({needmod:true})
+                    let returnArr=[],urls=[]
+                    for(let i=0;i<result.total;i++){
+                        let str=""
+                        let obj=merchants[i]
+                        urls.push(obj.frontImg)
+                        str+=obj.title+'\n'
+                        str+="区位:"+obj.district+'\n'
+                        str+="商圈:"+obj.businessDistrict+'\n'
+                        str+="大众评分:"+obj.avgScore+'\n'
+                        str+="评论数:"+obj.allCommentNum+'\n'
+                        str+="人均消费:"+obj.avgPrice+'\n'
+                        returnArr.push(str)
+                    }
+                    this.setState({urls})
+                    this.setState({textvalue:returnArr})
+                    this.setState({reutrned:true})
+                }else if(result.total%pagesize===0){//计算页码
+                    this.setState({needmod:false})
                     this.setState({pages:result.total/pagesize})
                 }else{
+                    this.setState({needmod:false})
                     this.setState({pagemod:result.total%pagesize})
                     this.setState({pages:(result.total-result.total%pagesize)/pagesize+1})
                 }
-                let returnArr=[],urls=[]
-                for(let i=0;i<this.state.pagesize;i++){
-                    let str=""
-                    let obj=merchants[i]
-                    urls.push(obj.frontImg)
-                    str+=obj.title+'\n'
-                    str+="区位:"+obj.district+'\n'
-                    str+="商圈:"+obj.businessDistrict+'\n'
-                    str+="大众评分:"+obj.avgScore+'\n'
-                    str+="评论数:"+obj.allCommentNum+'\n'
-                    str+="人均消费:"+obj.avgPrice+'\n'
-                    returnArr.push(str)
+
+                if(result.total>=this.state.pagesize){
+                    let returnArr=[],urls=[]
+                    for(let i=0;i<this.state.pagesize;i++){
+                        let str=""
+                        let obj=merchants[i]
+                        urls.push(obj.frontImg)
+                        str+=obj.title+'\n'
+                        str+="区位:"+obj.district+'\n'
+                        str+="商圈:"+obj.businessDistrict+'\n'
+                        str+="大众评分:"+obj.avgScore+'\n'
+                        str+="评论数:"+obj.allCommentNum+'\n'
+                        str+="人均消费:"+obj.avgPrice+'\n'
+                        returnArr.push(str)
+                    }
+                    this.setState({urls})
+                    this.setState({textvalue:returnArr})
+                    this.setState({reutrned:true})
                 }
-                this.setState({urls})
-                this.setState({textvalue:returnArr})
-                this.setState({reutrned:true})
             }
             
         })
